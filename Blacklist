@@ -56,9 +56,6 @@ local function checkPlayerInGroup(player, groupId)
     end
 end
 
--- กลุ่มที่ต้องการตรวจสอบ
-local groupId = 35673162 -- เปลี่ยนเป็น Group ID ที่ต้องการ
-
 -- เริ่มการโหลด
 loadProgress()
 
