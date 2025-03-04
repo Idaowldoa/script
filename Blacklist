@@ -1,0 +1,81 @@
+-- สร้าง GUI
+local ScreenGui = Instance.new("ScreenGui")
+local TitleLabel = Instance.new("TextLabel")
+local TextLabel = Instance.new("TextLabel")
+local ProgressBar = Instance.new("Frame")
+local ProgressFill = Instance.new("Frame")
+
+ScreenGui.Name = "LoadingGui"
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+TitleLabel.Parent = ScreenGui
+TitleLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+TitleLabel.Size = UDim2.new(0, 300, 0, 50)
+TitleLabel.Position = UDim2.new(0.5, -150, 0.05, 0)
+TitleLabel.Text = "Script Checking Blacklist by YoungQ"
+TitleLabel.TextColor3 = Color3.new(1, 1, 1)
+TitleLabel.TextScaled = true
+
+TextLabel.Parent = ScreenGui
+TextLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+TextLabel.Size = UDim2.new(0, 300, 0, 50)
+TextLabel.Position = UDim2.new(0.5, -150, 0.15, 0)
+TextLabel.Text = "Loading 0%"
+TextLabel.TextColor3 = Color3.new(1, 1, 1)
+TextLabel.TextScaled = true
+
+ProgressBar.Parent = ScreenGui
+ProgressBar.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+ProgressBar.Size = UDim2.new(0.8, 0, 0, 50)
+ProgressBar.Position = UDim2.new(0.1, 0, 0.25, 0)
+
+ProgressFill.Parent = ProgressBar
+ProgressFill.BackgroundColor3 = Color3.new(0, 1, 0)
+ProgressFill.Size = UDim2.new(0, 0, 1, 0)
+
+-- ฟังก์ชันโหลด
+local function loadProgress()
+    for i = 1, 100 do
+        TextLabel.Text = "Loading " .. i .. "%"
+        ProgressFill.Size = UDim2.new(i / 100, 0, 1, 0)
+        wait(0.03) -- 3 วินาทีสำหรับ 100%
+    end
+    TextLabel.Text = "Checking Process"
+end
+
+-- ฟังก์ชันตรวจสอบผู้เล่นในกลุ่ม
+local function checkPlayerInGroup(player, groupId)
+    local success, result = pcall(function()
+        return player:IsInGroup(groupId)
+    end)
+    if success then
+        return result
+    else
+        warn("Failed to check group status for player: " .. player.DisplayName)
+        return false
+    end
+end
+
+-- กลุ่มที่ต้องการตรวจสอบ
+local groupId = 35673162 -- เปลี่ยนเป็น Group ID ที่ต้องการ
+
+-- เริ่มการโหลด
+loadProgress()
+
+-- ตรวจสอบผู้เล่นทั้งหมดในเซิฟเวอร์
+local blacklistFound = false
+for _, player in ipairs(game.Players:GetPlayers()) do
+    if checkPlayerInGroup(player, groupId) then
+        TextLabel.Text = "Found Blacklist: " .. player.DisplayName
+        blacklistFound = true
+        break
+    end
+end
+
+if not blacklistFound then
+    TextLabel.Text = "Nobody is Blacklist"
+end
+
+-- ลบ GUI หลังจาก 5 วินาที
+wait(5)
+ScreenGui:Destroy()
