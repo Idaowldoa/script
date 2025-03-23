@@ -117,31 +117,35 @@ end)
 Main:Toggle("Auto-Farm",false, function(Autofarm)
     _G.Autofarm = Autofarm
     spawn(function()
-        while wait() do
-            pcall(function()
-                checklevel()
-                if _G.Autofarm then
-                    if game:GetService("Players").LocalPlayer.PlayerGui.SG.Quest.Frame.Visible then
-                        for i, v in pairs(workspace.NPCS:GetChildren()) do
-                            if v.Name == mon and v.PrimaryPart == v:FindFirstChild("HumanoidRootPart") then
-                                repeat
-                                    wait()
-                                    EquipTool(_G.Select_Weapons)
-                                    TP(v.HumanoidRootPart.CFrame * CFrame.new(0, 0, 5))
-                                    game:GetService("VirtualUser"):CaptureController()
-                                    game:GetService("VirtualUser"):Button1Down(Vector2.new(500, 500))
-                                until v.Humanoid.Health == 0 or not _G.Autofarm
-                                TP(CFramevoid)
+        if _G.Autofarm then DiscordLib:Notification("Notification", "Start Auto farm", "Okay!")
+            while wait() do
+                pcall(function()
+                    checklevel()
+                    if _G.Autofarm then
+                        if game:GetService("Players").LocalPlayer.PlayerGui.SG.Quest.Frame.Visible then
+                            for i, v in pairs(workspace.NPCS:GetChildren()) do
+                                if v.Name == mon and v.PrimaryPart == v:FindFirstChild("HumanoidRootPart") then
+                                    repeat
+                                        wait()
+                                        EquipTool(_G.Select_Weapons)
+                                        TP(v.HumanoidRootPart.CFrame * CFrame.new(0, 0, 5))
+                                        game:GetService("VirtualUser"):CaptureController()
+                                        game:GetService("VirtualUser"):Button1Down(Vector2.new(500, 500))
+                                    until v.Humanoid.Health == 0 or not _G.Autofarm
+                                    TP(CFramevoid)
+                                end
+                            end
+                        else
+                            TP(CFramequest)
+                            if (CFramequest.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 5 then
+                                game:GetService("ReplicatedStorage"):WaitForChild("RS"):WaitForChild("Quest"):FireServer(quest)
                             end
                         end
-                    else
-                        TP(CFramequest)
-                        if (CFramequest.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 5 then
-                            game:GetService("ReplicatedStorage"):WaitForChild("RS"):WaitForChild("Quest"):FireServer(quest)
-                        end
                     end
-                end
-            end)
+                end)
+            end
+        else
+            DiscordLib:Notification("Notification", "Stop Auto farm", "Okay!")
         end
     end)
 end)
