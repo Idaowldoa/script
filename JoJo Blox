@@ -1,0 +1,191 @@
+local DiscordLib = loadstring(game:HttpGet"https://raw.githubusercontent.com/dawid-scripts/UI-Libs/main/discord%20lib.txt")()
+
+local win = DiscordLib:Window("JoJo Blox Script")
+
+local serv = win:Server("Preview", "")
+local Main = serv:Channel("Main")
+local Stats = serv:Channel("Stats")
+
+
+function TP(CFrame)
+    local Root = game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if Root then
+        Root.CFrame = CFrame
+    end
+end
+local Weaponlist = {}
+for i,v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+	table.insert(Weaponlist ,v.Name)
+end
+
+function refreshWeaponlist()
+    local Weaponlist = {}
+    for i, v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+        if v:IsA("Tool") then
+            table.insert(Weaponlist, v.Name)
+        end
+    end
+end
+
+function EquipTool(Tool)
+    if game:GetService("Players").LocalPlayer.Backpack:FindFirstChild(Tool) then
+        game:GetService("Players").LocalPlayer.Character.Humanoid:EquipTool(game:GetService("Players").LocalPlayer.Backpack:FindFirstChild(Tool))
+    end
+end
+
+local SelectWeapons = Main:Dropdown("Choose Weapon",Weaponlist, function(Melee)
+    _G.Select_Weapons = Melee
+end)
+
+function checklevel()
+	local LevelText = game:GetService("Players").LocalPlayer.PlayerGui.SG.Mobile.MobileGui.Main.ML.LevelText.Text
+    local Level = tonumber(string.match(LevelText, "%d+"))
+	if Level < 15 then
+		mon = "Thug [Level 5]"
+		quest = "Thug"
+		CFramequest = CFrame.new(98.9469681, 3.41087937, 161.420456)
+		CFramevoid = CFrame.new(-10, 25, 130)
+	elseif Level >= 10 and Level < 20 then
+		mon = "HamonUser [Level 15]"
+		quest = "HamonUser"
+		CFramequest = CFrame.new(276.519012, 3.29200196, 145.759369)
+		CFramevoid = CFrame.new(368, 56, 213)
+	elseif Level >= 20 and Level < 30 then
+		mon = "Gryphon [Level 30]"
+		quest = "Gryphons"
+		CFramequest = CFrame.new(444.482361, 7.22246361, 100.564301)
+		CFramevoid = CFrame.new(494, 35, 213)
+	elseif Level >= 30 and Level < 40 then
+		mon = "Vampire [Level 40]"
+		quest = "Vampire"
+		CFramequest = CFrame.new(763.765808, 6.76667404, -46.8830261)
+		CFramevoid = CFrame.new(796, 73, 27)
+	elseif Level >= 40 and Level < 55 then
+		mon = "Snow Thug [Level 50]"
+		quest = "SnowThug"
+		CFramequest = CFrame.new(-20.4069233, -70.131134, 2429.02686)
+		CFramevoid = CFrame.new(76, 76, 2571)
+	elseif Level >=55 and Level < 90 then
+		mon = "Snowman [Level 65+]"
+		quest = "Snowman"
+		CFramequest = CFrame.new(-4.28963375, -69.7807693, 2433.69312)
+		CFramevoid = CFrame.new(76, 76, 2571)
+	elseif Level >= 70 and Level < 90 then
+			mon = "Wamuu"
+			quest ="Wamuu"
+			CFramequest = CFrame(11.9141207, -69.48349, 2428.55762, -0.587199688)
+            CFramevoid = CFrame.new(500,50000,500)
+	elseif Level >= 90 and Level < 110 then
+		mon = "Desert Monster [Level 120]"
+		quest = "Desert Monster"
+		CFramequest = CFrame.new(-24.668354, 24.4173126, -879.092773)
+		CFramevoid = CFrame.new(-106, 35, -884)
+	elseif Level >= 140 and Level < 180 then
+		mon = "Dio Guard [Level 165]"
+		quest = "Dio Guard"
+		CFramequest = CFrame.new(-261.999207, 24.1263905, -1454.84167)
+		CFramevoid = CFrame.new(-187, 37, -1241)
+	elseif Level >= 170 and Level < 250 then
+        mon = "Dio Royal Guard [Level  180]"
+		quest = "Dio Royal Guard"
+		CFramequest = CFrame.new(-111.449226, 25.2362823, -1702.5011, 0.999481559)
+		CFramevoid = CFrame.new(500,50000,500)
+	elseif Level >= 250 and Level < 275 then
+		mon = "School Bully  [Level 270]"
+		quest = "School Bully"
+		CFramequest = CFrame.new(128110.227, 398.420898, 18.0447807)
+		CFramevoid = CFrame.new(500,50000,500)
+	elseif Level >= 275 and Level < 300 then
+		mon = "City Criminal  [Level 280]"
+		quest = "City Criminal"
+		CFramequest = CFrame.new(127645.469, 399.096893, 2.03396988)
+		CFramevoid = CFrame.new(500,50000,500)
+	end
+end
+
+Main:Button("Refresh Weaponlist",false, function(bool)
+    Weaponlist = {}
+    SelectWeapons:Clear()
+    for i,v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+        if v:IsA("Tool") then
+            SelectWeapons:Add(v.Name) 
+        end
+    end
+end)
+
+
+Main:Toggle("Auto-Farm",false, function(Autofarm)
+    _G.Autofarm = Autofarm
+    spawn(function()
+        while wait() do
+            pcall(function()
+                checklevel()
+                if _G.Autofarm then
+                    if game:GetService("Players").LocalPlayer.PlayerGui.SG.Quest.Frame.Visible then
+                        for i, v in pairs(workspace.NPCS:GetChildren()) do
+                            if v.Name == mon and v.PrimaryPart == v:FindFirstChild("HumanoidRootPart") then
+                                repeat
+                                    wait()
+                                    EquipTool(_G.Select_Weapons)
+                                    TP(v.HumanoidRootPart.CFrame * CFrame.new(0, 0, 5))
+                                    game:GetService("VirtualUser"):CaptureController()
+                                    game:GetService("VirtualUser"):Button1Down(Vector2.new(500, 500))
+                                until v.Humanoid.Health == 0 or not _G.Autofarm
+                                TP(CFramevoid)
+                            end
+                        end
+                    else
+                        TP(CFramequest)
+                        if (CFramequest.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 5 then
+                            game:GetService("ReplicatedStorage"):WaitForChild("RS"):WaitForChild("Quest"):FireServer(quest)
+                        end
+                    end
+                end
+            end)
+        end
+    end)
+end)
+Stats:Toggle("UP Health",false, function(Uphealth)
+    _G.Uphealth = Uphealth
+    while _G.Uphealth do wait()
+        game:GetService("ReplicatedStorage"):WaitForChild("RS"):WaitForChild("OnLevel"):FireServer("HealthLevel",1)
+    end 
+end)
+Stats:Toggle("UP Stamina",false, function(Upstamina)
+    _G.Upstamina = Upstamina
+    while _G.Upstamina do wait()
+        game:GetService("ReplicatedStorage"):WaitForChild("RS"):WaitForChild("OnLevel"):FireServer("StaminaLevel",1)
+    end 
+end)
+Stats:Toggle("UP Attack",false, function(Upattack)
+    _G.Upattack = Upattack
+    while _G.Upattack do wait()
+        game:GetService("ReplicatedStorage"):WaitForChild("RS"):WaitForChild("OnLevel"):FireServer("AttackLevel",1)
+    end 
+end)
+Stats:Toggle("UP Genre",false, function(Upgenre)
+    _G.Upgenre = Upgenre
+    while _G.Upgenre do wait()
+        game:GetService("ReplicatedStorage"):WaitForChild("RS"):WaitForChild("OnLevel"):FireServer("GenreLevel",1)
+    end 
+end)
+
+Main:Toggle("Auto-FindArrow",false, function(Autofindarrow)
+    _G.Autofindarrow = Autofindarrow
+    spawn(function()
+        while wait() do
+            pcall(function()
+                if _G.Autofindarrow then
+                    local originalposition = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+                    for i, a in pairs(workspace.Arrows:GetChildren()) do
+                        if a.Name == "Arrow" and a:IsA("Tool") then
+                            TP(a.Handle.CFrame)
+                            wait(0.5)
+                            TP(originalposition)
+                        end
+                    end
+                end
+            end)
+        end
+    end)
+end)
