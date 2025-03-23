@@ -135,7 +135,7 @@ Main:Toggle("Auto-Farm",false, function(Autofarm)
                                         EquipTool(_G.Select_Weapons)
                                         TP(v.HumanoidRootPart.CFrame * CFrame.new(0, 0, 5))
                                         game:GetService("VirtualUser"):CaptureController()
-                                        game:GetService("VirtualUser"):Button1Down(Vector2.new(500, 500))
+                                        game:GetService("VirtualUser"):Button1Down(Vector2.new(600, 1200))
                                     until v.Humanoid.Health == 0 or not _G.Autofarm
                                     TP(CFramevoid)
                                 end
