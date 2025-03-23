@@ -19,10 +19,12 @@ for i,v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) 
 end
 
 function refreshWeaponlist()
-    local Weaponlist = {}
+    Weaponlist = {} -- รีเซ็ต Weaponlist
+    SelectWeapons:Clear() -- ล้าง Dropdown
     for i, v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
         if v:IsA("Tool") then
-            table.insert(Weaponlist, v.Name)
+            table.insert(Weaponlist, v.Name) -- เพิ่มชื่อไอเทมใน Weaponlist
+            SelectWeapons:Add(v.Name) -- เพิ่มชื่อไอเทมใน Dropdown
         end
     end
 end
@@ -49,68 +51,68 @@ function checklevel()
 		mon = "HamonUser [Level 15]"
 		quest = "HamonUser"
 		CFramequest = CFrame.new(276.519012, 3.29200196, 145.759369)
-		CFramevoid = CFrame.new(368, 56, 213)
+		CFramevoid = CFrame.new(-10, 25, 130)
 	elseif Level >= 20 and Level < 30 then
 		mon = "Gryphon [Level 30]"
 		quest = "Gryphons"
 		CFramequest = CFrame.new(444.482361, 7.22246361, 100.564301)
-		CFramevoid = CFrame.new(494, 35, 213)
+		CFramevoid = CFrame.new(-10, 25, 130)
 	elseif Level >= 30 and Level < 40 then
 		mon = "Vampire [Level 40]"
 		quest = "Vampire"
 		CFramequest = CFrame.new(763.765808, 6.76667404, -46.8830261)
-		CFramevoid = CFrame.new(796, 73, 27)
+		CFramevoid = CFrame.new(-10, 25, 130)
 	elseif Level >= 40 and Level < 55 then
 		mon = "Snow Thug [Level 50]"
 		quest = "SnowThug"
 		CFramequest = CFrame.new(-20.4069233, -70.131134, 2429.02686)
-		CFramevoid = CFrame.new(76, 76, 2571)
+		CFramevoid = CFrame.new(-10, 25, 130)
 	elseif Level >=55 and Level < 90 then
 		mon = "Snowman [Level 65+]"
 		quest = "Snowman"
 		CFramequest = CFrame.new(-4.28963375, -69.7807693, 2433.69312)
-		CFramevoid = CFrame.new(76, 76, 2571)
+		CFramevoid = CFrame.new(-10, 25, 130)
 	elseif Level >= 70 and Level < 90 then
 		mon = "Wamuu"
 		quest ="Wamuu"
 		CFramequest = CFrame(11.9141207, -69.48349, 2428.55762)
-        CFramevoid = CFrame.new(500,50000,500)
+        CFramevoid = CFrame.new(-10, 25, 130)
 	elseif Level >= 90 and Level < 110 then
 		mon = "Desert Bandit [Level 95]"
 		quest = "Desert Bandit"
 		CFramequest = CFrame.new(-82.5183105, 24.996624, -887.138367)
-		CFramevoid = CFrame.new(-106, 35, -884)
+		CFramevoid = CFrame.new(-10, 25, 130)
     elseif Level >=110 and Level < 140 then
         mon = "Desert Monster [Level 120]"
         quest = "Desert Monster"
         CFramequest = CFrame.new(-24.668354, 24.4173126, -879.092773)
-        CFramevoid = CFrame.new(500,50000,500)
+        CFramevoid = CFrame.new(-10, 25, 130)
 	elseif Level >= 140 and Level < 170 then
 		mon = "Dio Guard [Level 165]"
 		quest = "Dio Guard"
 		CFramequest = CFrame.new(-261.999207, 24.1263905, -1454.84167)
-		CFramevoid = CFrame.new(-187, 37, -1241)
+		CFramevoid = CFrame.new(-10, 25, 130)
 	elseif Level >= 170 and Level < 250 then
         mon = "Dio Royal Guard [Level  180]"
 		quest = "Dio Royal Guard"
 		CFramequest = CFrame.new(-111.449226, 25.2362823, -1702.5011)
-		CFramevoid = CFrame.new(500,50000,500)
+		CFramevoid = CFrame.new(-10, 25, 130)
 	elseif Level >= 250 and Level < 275 then
 		mon = "School Bully  [Level 270]"
 		quest = "School Bully"
 		CFramequest = CFrame.new(128110.227, 398.420898, 18.0447807)
-		CFramevoid = CFrame.new(500,50000,500)
+		CFramevoid = CFrame.new(-10, 25, 130)
 	elseif Level >= 275 and Level < 300 then
 		mon = "City Criminal  [Level 280]"
 		quest = "City Criminal"
 		CFramequest = CFrame.new(127645.469, 399.096893, 2.03396988)
-		CFramevoid = CFrame.new(500,50000,500)
+		CFramevoid = CFrame.new(-10, 25, 130)
 	end
 end
 
 Main:Button("Refresh Weaponlist",false, function(bool)
     Weaponlist = {}
-    SelectWeapons:Clear()
+    refreshWeaponlist()
     for i,v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
         if v:IsA("Tool") then
             SelectWeapons:Add(v.Name) 
@@ -128,6 +130,7 @@ Main:Toggle("Auto-Farm",false, function(Autofarm)
                 pcall(function()
                     checklevel()
                     if _G.Autofarm then
+                        local originalposition = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
                         if not game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
                             local BodyVelocity = Instance.new("BodyVelocity")
                             BodyVelocity.Parent = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart
@@ -155,12 +158,19 @@ Main:Toggle("Auto-Farm",false, function(Autofarm)
                             end
                         end
                     else
-                        game:GetService("Players").LocalPlayer.HumanoidRootPart:FindFirstChild("BodyVelocity"):Destroy()
+                        if game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
+                            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.BodyVelocity:Destroy()
+                        end
                     end
                 end)
             end
         else
+            TP(originalposition)
             DiscordLib:Notification("Notification", "Stop Auto farm", "Okay!")
+            if game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
+                game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.BodyVelocity:Destroy()
+            end
+            game:GetService("Players").LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Running)
         end
     end)
 end)
