@@ -71,10 +71,10 @@ function checklevel()
 		CFramequest = CFrame.new(-4.28963375, -69.7807693, 2433.69312)
 		CFramevoid = CFrame.new(76, 76, 2571)
 	elseif Level >= 70 and Level < 90 then
-			mon = "Wamuu"
-			quest ="Wamuu"
-			CFramequest = CFrame(11.9141207, -69.48349, 2428.55762)
-            CFramevoid = CFrame.new(500,50000,500)
+		mon = "Wamuu"
+		quest ="Wamuu"
+		CFramequest = CFrame(11.9141207, -69.48349, 2428.55762)
+        CFramevoid = CFrame.new(500,50000,500)
 	elseif Level >= 90 and Level < 110 then
 		mon = "Desert Bandit [Level 95]"
 		quest = "Desert Bandit"
@@ -93,7 +93,7 @@ function checklevel()
 	elseif Level >= 170 and Level < 250 then
         mon = "Dio Royal Guard [Level  180]"
 		quest = "Dio Royal Guard"
-		CFramequest = CFrame.new(-111.449226, 25.2362823, -1702.5011, 0.999481559)
+		CFramequest = CFrame.new(-111.449226, 25.2362823, -1702.5011)
 		CFramevoid = CFrame.new(500,50000,500)
 	elseif Level >= 250 and Level < 275 then
 		mon = "School Bully  [Level 270]"
