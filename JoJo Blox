@@ -122,18 +122,26 @@ end)
 Main:Toggle("Auto-Farm",false, function(Autofarm)
     _G.Autofarm = Autofarm
     spawn(function()
-        if _G.Autofarm then DiscordLib:Notification("Notification", "Start Auto farm", "Okay!")
+        if _G.Autofarm then 
+            DiscordLib:Notification("Notification", "Start Auto farm", "Okay!")
             while wait() do
                 pcall(function()
                     checklevel()
                     if _G.Autofarm then
+                        if not game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
+                            local BodyVelocity = Instance.new("BodyVelocity")
+                            BodyVelocity.Parent = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart
+                            BodyVelocity.Name = "BodyVelocity"
+                            BodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                            BodyVelocity.Velocity = Vector3.new(0, 0, 0)
+                        end
                         if game:GetService("Players").LocalPlayer.PlayerGui.SG.Quest.Frame.Visible then
                             for i, v in pairs(workspace.NPCS:GetChildren()) do
-                                if v.Name == mon and v.PrimaryPart == v:FindFirstChild("HumanoidRootPart") then
+                                if v.Name == mon and v:FindFirstChild("HumanoidRootPart") then
                                     repeat
-                                        wait()
+                                        task.wait()
                                         EquipTool(_G.Select_Weapons)
-                                        TP(v.HumanoidRootPart.CFrame * CFrame.new(0, 0, 5))
+                                        TP(v.HumanoidRootPart.CFrame * CFrame.new(0, 7, 0) * CFrame.Angles(math.rad(-90), 0, 0))
                                         game:GetService("VirtualUser"):CaptureController()
                                         game:GetService("VirtualUser"):Button1Down(Vector2.new(600, 1200))
                                     until v.Humanoid.Health == 0 or not _G.Autofarm
@@ -146,6 +154,8 @@ Main:Toggle("Auto-Farm",false, function(Autofarm)
                                 game:GetService("ReplicatedStorage"):WaitForChild("RS"):WaitForChild("Quest"):FireServer(quest)
                             end
                         end
+                    else
+                        game:GetService("Players").LocalPlayer.HumanoidRootPart:FindFirstChild("BodyVelocity"):Destroy()
                     end
                 end)
             end
