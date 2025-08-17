@@ -4,11 +4,14 @@
     ['Speed'] = 100,
 }]]
 
-task.spawn(function()
+task.spawn(function() --  กด Play ออโต้
     while task.wait(1) do 
         pcall(function()
-            local button = game:GetService("Players").LocalPlayer.PlayerGui.App["6"]["3"].Frame["2"]
-            firesignal(button.Activated)
+            for _, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.App:GetDescendants()) do
+                if v:IsA("ImageButton") and v.Image == "rbxassetid://123424938115888" then
+                    firesignal(v.Activated)
+                end
+            end
         end)
     end
 end)
