@@ -1,1 +1,248 @@
+--[[getgenv().Setting = {
+    ['Auto Amber'] = true,
+    ['Auto Kill Goat'] = true,
+    ['Speed'] = 100,
+}]]
 
+task.spawn(function()
+    while task.wait(1) do 
+        pcall(function()
+            local button = game:GetService("Players").LocalPlayer.PlayerGui.App["6"]["3"].Frame["2"]
+            firesignal(button.Activated)
+        end)
+    end
+end)
+
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local lpr = Players.LocalPlayer
+local char = lpr.Character or lpr.CharacterAdded:Wait()
+local root = char:WaitForChild("HumanoidRootPart")
+local coregui = game:GetService("CoreGui")
+local ScreenGui = Instance.new("ScreenGui")
+local PlayerGui = lpr:WaitForChild("PlayerGui")
+local startTime = tick()
+local baseY = (root.Position - Vector3.new(0, 25, 0)).Y
+local Speed = getgenv().Setting['Speed']
+
+local function attack()
+    game:GetService("ReplicatedStorage")["@rbxts/wcs:source/networking@GlobalEvents"].requestSkill:FireServer(
+        {
+            buffer = (function(bytes) --[[Type: buffer]]
+                local b = buffer.create(#bytes)
+                for i = 1, #bytes do
+                    buffer.writeu8(b, i - 1, bytes[i])
+                end
+                return b
+            end)({ 8, 0, 0, 0, 77, 49, 65, 116, 116, 97, 99, 107, 1, 3, 0, 0, 0, 1, 1, 1 }),
+            blobs = {
+                0.56000000238419,
+                1755434827.1738,
+                false
+            }
+        }
+    )
+end
+local function getAmbers()
+    local list = {}
+    local container = workspace:FindFirstChild("ItemSpawn")
+        and workspace.ItemSpawn:FindFirstChild("Amber")
+    if not container then return list end
+    for _, folder in ipairs(container:GetChildren()) do
+        for _, inst in ipairs(folder:GetChildren()) do
+            local prompt = inst:FindFirstChildWhichIsA("ProximityPrompt", true)
+            if prompt then
+                table.insert(list, {node = inst, prompt = prompt})
+            end
+        end
+    end
+    return list
+end
+local function getgoat()
+    local ag = {}
+    for _, v in pairs(workspace.Humanoids:GetChildren()) do
+        if v:IsA("Model") and v.Name == "Goat" then
+            local humanoid = v:FindFirstChildOfClass("Humanoid")
+            local rootPart = v:FindFirstChild("HumanoidRootPart")
+            if not humanoid or not rootPart then continue end
+            if humanoid and humanoid.Health > 0 then
+                table.insert(ag, v)
+            end
+        end
+    end
+    return ag
+end
+local function whattodonow()
+    local amber= getAmbers()
+    local goat = getgoat()
+    if #amber > 0 and getgenv().Setting['Auto Amber'] then
+        return "amber"
+    elseif #goat > 0 and getgenv().Setting['Auto Kill Goat'] and #amber <= 0 or not getgenv().Setting['Auto Amber']  then
+        return "goat"
+    else
+        return "none"
+    end
+end
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "Checked"
+ScreenGui.Parent = PlayerGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.IgnoreGuiInset = true
+local WhiteBG = Instance.new("Frame")
+WhiteBG.Parent = ScreenGui
+WhiteBG.Size = UDim2.new(1,0,1,0)
+WhiteBG.BackgroundColor3 = Color3.fromRGB(255,255,255)
+WhiteBG.BorderSizePixel = 0
+local MainFrame = Instance.new("Frame")
+MainFrame.Parent = ScreenGui
+MainFrame.Size = UDim2.new(0, 700, 0, 450)
+MainFrame.Position = UDim2.new(0.5, -350, 0.5, -225)
+MainFrame.BackgroundColor3 = Color3.fromRGB(240,248,255)
+MainFrame.BorderSizePixel = 0
+MainFrame.BackgroundTransparency = 0.05
+MainFrame.Active = true
+local UICorner = Instance.new("UICorner", MainFrame)
+UICorner.CornerRadius = UDim.new(0, 30)
+local Title = Instance.new("TextLabel")
+Title.Parent = MainFrame
+Title.Size = UDim2.new(1,0,0,60)
+Title.Position = UDim2.new(0,0,0,0)
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.FredokaOne
+Title.Text = "🦖 Jurassic Blocky Private"
+Title.TextColor3 = Color3.fromRGB(0,126,172)
+Title.TextSize = 36
+local UserLabel = Instance.new("TextLabel")
+UserLabel.Parent = MainFrame
+UserLabel.Size = UDim2.new(1,-40,0,50)
+UserLabel.Position = UDim2.new(0,20,0,80)
+UserLabel.BackgroundTransparency = 1
+UserLabel.Font = Enum.Font.FredokaOne
+UserLabel.TextColor3 = Color3.fromRGB(30,30,30)
+UserLabel.TextSize = 28
+UserLabel.Text = "Username: "..lpr.Name
+local CoinLabel = Instance.new("TextLabel")
+CoinLabel.Parent = MainFrame
+CoinLabel.Size = UDim2.new(1,-40,0,50)
+CoinLabel.Position = UDim2.new(0,20,0,150)
+CoinLabel.BackgroundTransparency = 1
+CoinLabel.Font = Enum.Font.FredokaOne
+CoinLabel.TextColor3 = Color3.fromRGB(30,30,30)
+CoinLabel.TextSize = 28
+CoinLabel.Text = "Coin Now: 0"
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Parent = MainFrame
+StatusLabel.Size = UDim2.new(1,-40,0,50)
+StatusLabel.Position = UDim2.new(0,20,0,220)
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Font = Enum.Font.FredokaOne
+StatusLabel.TextColor3 = Color3.fromRGB(0,170,0)
+StatusLabel.TextSize = 28
+StatusLabel.Text = "Status: Idle"
+local TimerLabel = Instance.new("TextLabel")
+TimerLabel.Parent = MainFrame
+TimerLabel.Size = UDim2.new(1,-40,0,50)
+TimerLabel.Position = UDim2.new(0,20,0,290)
+TimerLabel.BackgroundTransparency = 1
+TimerLabel.Font = Enum.Font.FredokaOne
+TimerLabel.TextColor3 = Color3.fromRGB(255,0,0)
+TimerLabel.TextSize = 28
+TimerLabel.Text = "Time: 00:00:00"
+task.spawn(function()
+    while task.wait(0.5) do
+        pcall(function()
+            local raw = lpr.PlayerGui.App:GetChildren()[5]["2"]["4"].Text
+            local num = raw:match("%d+[,0-9]*") or "0"
+            CoinLabel.Text = "Coin Now: "..num
+            UserLabel.Text = "Username: "..lpr.Name
+            local state = whattodonow()
+            if state == "amber" then
+                StatusLabel.Text = "Status: Collecting Amber"
+            elseif state == "goat" then
+                StatusLabel.Text = "Status: Killing Goat"
+            else
+                StatusLabel.Text = "Status: Idle"
+            end
+            local elapsed = tick() - startTime
+            local h = math.floor(elapsed / 3600)
+            local m = math.floor((elapsed % 3600) / 60)
+            local s = math.floor(elapsed % 60)
+            TimerLabel.Text = string.format("Time: %02d:%02d:%02d", h,m,s)
+        end)
+    end
+end)
+
+
+local function getWorldCFrame(inst)
+    if not inst or not inst.Parent then return nil end
+    if inst:IsA("BasePart") then
+        return inst.CFrame
+    elseif inst:IsA("Model") then
+        if inst.PrimaryPart then return inst.PrimaryPart.CFrame end
+        return inst:GetPivot()
+    end
+    return nil
+end
+
+local function TweenTo(obj, targetCFrame, duration)
+    local info = TweenInfo.new(duration or 1, Enum.EasingStyle.Linear)
+    local t = TweenService:Create(obj, info, {CFrame = targetCFrame})
+    t:Play()
+    return t
+end
+
+task.spawn(function()
+    while task.wait(0.3) do
+        local state = whattodonow()
+        root.CFrame = CFrame.new(root.Position.X, baseY, root.Position.Z)
+        if state == "amber" and getgenv().Setting['Auto Amber'] then
+            local ambers = getAmbers()
+            if #ambers > 0 then
+                local item = ambers[1]
+                local node = item.node
+                local prompt = item.prompt
+                if node and prompt and prompt.Enabled then
+                    local amberCF = getWorldCFrame(node)
+                    if amberCF then
+                        local targetPos = Vector3.new(amberCF.Position.X, baseY, amberCF.Position.Z)
+                        local dist = (targetPos - root.Position).Magnitude
+                        local duration = math.max(dist / Speed, 0.05)
+                        local tween = TweenTo(root, CFrame.new(targetPos), duration)
+                        tween.Completed:Wait()
+                        root.CFrame = amberCF + Vector3.new(0, 3, 0)
+                        local t0 = tick()
+                        while getgenv().Setting['Auto Amber'] and prompt.Enabled and tick() - t0 < 3 do
+                            pcall(fireproximityprompt, prompt)
+                            task.wait(0.2)
+                        end
+                    end
+                end
+            end
+
+        elseif state == "goat" and getgenv().Setting['Auto Kill Goat'] then
+            local goats = getgoat()
+            if #goats > 0 then
+                local goat = goats[1]
+                local goatRoot = goat:FindFirstChild("HumanoidRootPart")
+                local humanoid = goat:FindFirstChildOfClass("Humanoid")
+                if goatRoot and humanoid and humanoid.Health > 0 then
+                    local goatCF = getWorldCFrame(goatRoot)
+                    if goatCF then
+                        local targetPos = Vector3.new(goatCF.Position.X, baseY, goatCF.Position.Z)
+                        local dist = (targetPos - root.Position).Magnitude
+                        local duration = math.max(dist / Speed, 0.05)
+
+                        local tween = TweenTo(root, CFrame.new(targetPos), duration)
+                        tween.Completed:Wait()
+                        while getgenv().Setting['Auto Kill Goat'] and humanoid.Health > 0 do
+                            root.CFrame = CFrame.new(goatRoot.Position)
+                            attack()
+                            task.wait(0.3)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
