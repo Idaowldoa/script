@@ -1,0 +1,169 @@
+repeat
+    task.wait()
+until game:IsLoaded()
+    and game:GetService('Players').LocalPlayer.Character
+    and game:GetService('Players').LocalPlayer.Character
+        :FindFirstChild('HumanoidRootPart')
+task.wait(3)
+
+local Players = game:GetService('Players')
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local LocalPlayer = Players.LocalPlayer
+
+local checkmode =
+    LocalPlayer.PlayerGui.GameGui.Screen.Middle.DifficultyVote.Items.Frame.Items.Items:FindFirstChild(
+        'dif_easy'
+    )
+local remoteunit = ReplicatedStorage.RemoteFunctions.PlaceUnit
+local remoteupgrade = ReplicatedStorage.RemoteFunctions.UpgradeUnit
+local restartRemote = ReplicatedStorage.RemoteFunctions.RestartGame
+
+-- ฟังก์ชันวางยูนิต
+local function PlaceUnits()
+    task.wait(2)
+    local placements = {
+        CFrame.new(-338.7328, 61.6803, -113.3058),
+        CFrame.new(-338.6438, 61.6803, -118.8571),
+        CFrame.new(-338.7528, 61.6803, -125.4441),
+        CFrame.new(-339.0662, 61.6803, -131.3661),
+        CFrame.new(-339.1227, 61.6803, -136.4889),
+        CFrame.new(-330.8367, 61.6803, -141.9571),
+        CFrame.new(-325.2895, 61.6803, -141.3212),
+        CFrame.new(-320.8151, 61.6803, -141.2391),
+        CFrame.new(-316.5359, 61.6803, -141.4696),
+        CFrame.new(-338.7528, 61.6803, -125.4441),
+        CFrame.new(-331.5479, 61.6803, -110.7064),
+        CFrame.new(-331.5990, 61.6803, -117.1796),
+        CFrame.new(-331.4793, 61.6803, -124.5371),
+        CFrame.new(-331.1862, 61.6803, -130.5839),
+        CFrame.new(-325.1652, 61.6803, -130.5545),
+        CFrame.new(-319.7233, 61.6803, -130.8241),
+        CFrame.new(-313.6964, 61.6803, -130.5307),
+    }
+
+    for _, cf in ipairs(placements) do
+        repeat
+            task.wait()
+        until tonumber(LocalPlayer.leaderstats.Cash.Value) >= 100
+        remoteunit:InvokeServer('unit_tomato_plant', {
+            Valid = true,
+            Rotation = 180,
+            CF = cf,
+            Position = cf.Position,
+        })
+        task.wait(0.5)
+    end
+end
+
+local function AutoUpgrade()
+    while task.wait(1) do
+        for _, v in pairs(workspace.Map.Entities:GetChildren()) do
+            if v.Name == 'unit_tomato_plant' then
+                remoteupgrade:InvokeServer(v:GetAttribute('ID'))
+            end
+        end
+    end
+end
+local function StartGameLoop()
+    local isstart = false
+    local passes2 = false
+    local passes3 = false
+    task.spawn(function()
+        while task.wait(1) do
+            pcall(function()
+                if checkmode.Visible then
+                    ReplicatedStorage.RemoteFunctions.PlaceDifficultyVote:InvokeServer(
+                        'dif_easy'
+                    )
+                    isstart = true
+                end
+            end)
+        end
+    end)
+    task.spawn(function()
+        while task.wait(1) and not passes2 do
+            pcall(function()
+                local autoSkip =
+                    LocalPlayer.PlayerGui.GameGuiNoInset.Screen.Top.WaveControls.AutoSkip
+                if autoSkip.ImageColor3 == Color3.fromRGB(255, 170, 0) then
+                    firesignal(autoSkip.MouseButton1Click)
+                    passes2 = true
+                end
+            end)
+        end
+    end)
+    task.spawn(function()
+        while task.wait(1) and not passes3 do
+            pcall(function()
+                local tick2 =
+                    LocalPlayer.PlayerGui.GameGuiNoInset.Screen.Top.WaveControls.TickSpeed.Items['2']
+                if tick2.ImageColor3 == Color3.fromRGB(166, 166, 166) then
+                    firesignal(tick2.MouseButton1Click)
+                    passes3 = true
+                end
+            end)
+        end
+    end)
+    repeat task.wait() until not LocalPlayer.PlayerGui.GameGui.Screen.Middle.DifficultyVote.Visible
+    PlaceUnits()
+    task.spawn(AutoUpgrade)
+
+    task.spawn(function()
+        while task.wait(2) do
+            if LocalPlayer.PlayerGui.GameGui.Screen.Middle.GameEnd.Visible then
+                restartRemote:InvokeServer()
+                task.wait(5)
+                StartGameLoop()
+                break
+            end
+        end
+    end)
+end
+
+if game.PlaceId == 108533757090220 then
+    for _, v in pairs(workspace.Map.LobbiesFarm:GetChildren()) do
+        if
+            v:FindFirstChild('Exit')
+            and v.Exit.CFrame
+                == CFrame.new(
+                    85.050827,
+                    66.2376022,
+                    797.770386,
+                    -1,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    -1
+                )
+        then
+            local part = v.Cage and v.Cage:FindFirstChild('Part')
+            if part then
+                firetouchinterest(
+                    LocalPlayer.Character.HumanoidRootPart,
+                    part,
+                    0
+                )
+                task.wait(0.1)
+                firetouchinterest(
+                    LocalPlayer.Character.HumanoidRootPart,
+                    part,
+                    1
+                )
+                task.wait(0.5)
+                ReplicatedStorage.RemoteFunctions.LobbySetMap_6:InvokeServer(
+                    'map_farm'
+                )
+                task.wait(0.5)
+                ReplicatedStorage.RemoteFunctions.StartLobby_6:InvokeServer()
+            end
+        end
+    end
+elseif game.PlaceId == 123516946198836 then
+    StartGameLoop()
+else
+    LocalPlayer:Kick('PlaceId ไม่ตรง')
+end
