@@ -163,6 +163,89 @@ if game.PlaceId == 108533757090220 then
         end
     end
 elseif game.PlaceId == 123516946198836 then
+    local PlayerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+    local startTime = tick()
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "Checked"
+    ScreenGui.Parent = PlayerGui
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    ScreenGui.IgnoreGuiInset = true
+    local WhiteBG = Instance.new("Frame")
+    WhiteBG.Parent = ScreenGui
+    WhiteBG.Size = UDim2.new(1,0,1,0)
+    WhiteBG.BackgroundColor3 = Color3.fromRGB(255,255,255)
+    WhiteBG.BorderSizePixel = 0
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Parent = ScreenGui
+    MainFrame.Size = UDim2.new(0, 700, 0, 450)
+    MainFrame.Position = UDim2.new(0.5, -350, 0.5, -225)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(240,248,255)
+    MainFrame.BorderSizePixel = 0
+    MainFrame.BackgroundTransparency = 0.05
+    MainFrame.Active = true
+    local UICorner = Instance.new("UICorner", MainFrame)
+    UICorner.CornerRadius = UDim.new(0, 30)
+    local Title = Instance.new("TextLabel")
+    Title.Parent = MainFrame
+    Title.Size = UDim2.new(1,0,0,60)
+    Title.Position = UDim2.new(0,0,0,0)
+    Title.BackgroundTransparency = 1
+    Title.Font = Enum.Font.FredokaOne
+    Title.Text = "Garden tower Defense"
+    Title.TextColor3 = Color3.fromRGB(0,126,172)
+    Title.TextSize = 36
+    local UserLabel = Instance.new("TextLabel")
+    UserLabel.Parent = MainFrame
+    UserLabel.Size = UDim2.new(1,-40,0,50)
+    UserLabel.Position = UDim2.new(0,20,0,80)
+    UserLabel.BackgroundTransparency = 1
+    UserLabel.Font = Enum.Font.FredokaOne
+    UserLabel.TextColor3 = Color3.fromRGB(30,30,30)
+    UserLabel.TextSize = 28
+    UserLabel.Text = "Username: ".. game:GetService("Players").LocalPlayer.Name
+    local CoinLabel = Instance.new("TextLabel")
+    CoinLabel.Parent = MainFrame
+    CoinLabel.Size = UDim2.new(1,-40,0,50)
+    CoinLabel.Position = UDim2.new(0,20,0,150)
+    CoinLabel.BackgroundTransparency = 1
+    CoinLabel.Font = Enum.Font.FredokaOne
+    CoinLabel.TextColor3 = Color3.fromRGB(30,30,30)
+    CoinLabel.TextSize = 28
+    CoinLabel.Text = "Seed : | Coin Now : "
+    local StatusLabel = Instance.new("TextLabel")
+    StatusLabel.Parent = MainFrame
+    StatusLabel.Size = UDim2.new(1,-40,0,50)
+    StatusLabel.Position = UDim2.new(0,20,0,220)
+    StatusLabel.BackgroundTransparency = 1
+    StatusLabel.Font = Enum.Font.FredokaOne
+    StatusLabel.TextColor3 = Color3.fromRGB(0,170,0)
+    StatusLabel.TextSize = 28
+    StatusLabel.Text = "Wave :"
+    local TimerLabel = Instance.new("TextLabel")
+    TimerLabel.Parent = MainFrame
+    TimerLabel.Size = UDim2.new(1,-40,0,50)
+    TimerLabel.Position = UDim2.new(0,20,0,290)
+    TimerLabel.BackgroundTransparency = 1
+    TimerLabel.Font = Enum.Font.FredokaOne
+    TimerLabel.TextColor3 = Color3.fromRGB(255,0,0)
+    TimerLabel.TextSize = 28
+    TimerLabel.Text = "Time: 00:00:00"
+    task.spawn(function()
+        while task.wait(0.5) do
+            pcall(function()
+                local coin = game:GetService("Players").LocalPlayer.leaderstats.Cash.Value
+                local seed = game:GetService("Players").LocalPlayer.leaderstats.Seeds.Value
+                CoinLabel.Text = "Seed : ".. seed .. " | Coin Now : " .. coin
+                UserLabel.Text = "Username: ".. game:GetService("Players").LocalPlayer.Name
+                StatusLabel.Text = game:GetService("Players").LocalPlayer.PlayerGui.GameGuiNoInset.Screen.Top.GameInfo.Content.Waves.Title.Text
+                local elapsed = tick() - startTime
+                local h = math.floor(elapsed / 3600)
+                local m = math.floor((elapsed % 3600) / 60)
+                local s = math.floor(elapsed % 60)
+                TimerLabel.Text = string.format("Time: %02d:%02d:%02d", h,m,s)
+            end)
+        end
+    end)
     StartGameLoop()
 else
     LocalPlayer:Kick('PlaceId ไม่ตรง')
