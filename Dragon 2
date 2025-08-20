@@ -6,7 +6,11 @@ if queue_on_teleport then
         loadstring(game:HttpGet("]] .. url .. [["))()
     ]])
 end
+
+-- ตัวแปรควบคุม
 local passes = false
+local stopAll = false -- ใช้ตัวนี้ kill ทุก loop
+
 --// เริ่มทำงาน
 repeat task.wait() until game:IsLoaded()
 print('hi')
@@ -32,9 +36,10 @@ end
 
 -- ทำเควส tutorial อัตโนมัติ
 task.spawn(function()
-    while task.wait() and not passes do
+    while task.wait() and not stopAll do
         pcall(function()
             for _, v in pairs(lpr.PlayerGui.TutorialGui.TaskTopFrame:GetChildren()) do
+                if stopAll then return end
                 if v:IsA('ImageLabel') and tonumber(v.Name) then
                     local taskText = v.DescriptionLabel.Text
 
@@ -42,10 +47,12 @@ task.spawn(function()
                     if taskText == 'Bond with your dragon!' then
                         firesignal(lpr.PlayerGui.HUDGui.BottomFrame.CurrentDragonFrame.StatusBars.StatusesFrameRight.Content.DragonBondLabel.Circle.Button.MouseButton1Down)
                         repeat task.wait(0.2)
+                            if stopAll then return end
                             task.spawn(function()
                                 local gui = lpr.PlayerGui.DragonBondingGui["1"]
                                 local center = gui.AbsolutePosition + gui.AbsoluteSize/2
                                 for angle = 0, 360, 30 do
+                                    if stopAll then return end
                                     local rad = math.rad(angle)
                                     local x = center.X + math.cos(rad) * 20
                                     local y = center.Y + math.sin(rad) * 20
@@ -61,13 +68,14 @@ task.spawn(function()
                         firesignal(lpr.PlayerGui.HUDGui.BottomFrame.CurrentDragonFrame.DragonControlsFrame.Other.Fly.MouseButton1Down)
                         task.wait(0.5)
                         for _, v1 in pairs(workspace.Interactions.RidingRings.CreatedRings:GetChildren()) do
+                            if stopAll then return end
                             if v1:FindFirstChild('TouchInterest') then
                                 if v1.Color == Color3.fromRGB(161, 124, 79) and v1.Transparency ~= 1 then
                                     repeat
                                         lpr.Character.HumanoidRootPart.CFrame = CFrame.new(v1.Position)
                                         task.wait(0.5)
                                         taskText = v.DescriptionLabel.Text
-                                    until taskText ~= 'Fly through rings!'
+                                    until taskText ~= 'Fly through rings!' or stopAll
                                 end
                             end
                         end
@@ -75,22 +83,26 @@ task.spawn(function()
                     -- Destroy targets
                     elseif taskText == "Destroy the targets!" then
                         for _, v1 in pairs(workspace.Environment.Targets:GetChildren()) do
+                            if stopAll then return end
                             local board = v1:FindFirstChild('BillboardPart')
                             if board and board:FindFirstChild('Dead') and not board.Dead.Value then
                                 firesignal(lpr.PlayerGui.HUDGui.BottomFrame.CurrentDragonFrame.DragonControlsFrame.Other.Fire.MouseButton1Down)
                                 repeat task.wait()
+                                    if stopAll then return end
                                     lpr.Character.HumanoidRootPart.CFrame = board.CFrame * CFrame.new(0, 5, 0)
                                     firesignal(lpr.PlayerGui.HUDGui.BottomFrame.CurrentDragonFrame.DragonControlsFrame.Other.Fire.MouseButton1Down)
-                                until board.Dead.Value or board.Health.Value <= 0
+                                until board.Dead.Value or board.Health.Value <= 0 or stopAll
                             end
                         end
 
                     -- Collect egg
                     elseif taskText == "Collect the egg!" then
                         for _, v1 in pairs(workspace.Environment.Nest.EggModel:GetChildren()) do
+                            if stopAll then return end
                             if v1.Name == "Egg" then
                                 lpr.Character.HumanoidRootPart.CFrame = v1.CFrame
                                 for i = 1, 5 do
+                                    if stopAll then return end
                                     pressE()
                                     task.wait(0.5)
                                 end
@@ -101,6 +113,7 @@ task.spawn(function()
                     elseif taskText == "Incubate the egg!" then
                         firesignal(lpr.PlayerGui.HUDGui.BottomFrame.CurrentDragonFrame.StatusBars.StatusesFrame.Content.ReturnToPlotButton.Activated)
                         for _, v1 in pairs(getowner().Base.Buildings.Incubator:GetChildren()) do
+                            if stopAll then return end
                             if v1.Name == "Base" then
                                 lpr.Character.HumanoidRootPart.CFrame = v1.CFrame 
                                 pressE() 
@@ -109,6 +122,7 @@ task.spawn(function()
                                 if eggs:FindFirstChild("Tutorial") or eggs:FindFirstChild("TutorialCompleteEgg") then
                                     local eggBtn = eggs:FindFirstChild("Tutorial") or eggs:FindFirstChild("TutorialCompleteEgg")
                                     repeat
+                                        if stopAll then return end
                                         pressE()
                                         task.wait(0.5)
                                         firesignal(eggBtn.MouseButton1Click)
@@ -118,7 +132,7 @@ task.spawn(function()
                                         firesignal(incubateBtn.MouseButton1Click)
                                         task.wait(0.5)
                                         taskText = v.DescriptionLabel.Text
-                                    until taskText ~= "Incubate the egg!" or taskText == "Grow your dragon!"
+                                    until taskText ~= "Incubate the egg!" or taskText == "Grow your dragon!" or stopAll
                                 end
                             end
                         end
@@ -135,17 +149,20 @@ task.spawn(function()
                                 local interactBtn = container:FindFirstChild("InteractButton")
                                 if interactBtn and interactBtn.Visible then
                                     repeat task.wait(1)
+                                        if stopAll then return end
                                         firesignal(interactBtn.Activated)
-                                    until not interactBtn.Visible
+                                    until not interactBtn.Visible or stopAll
                                 else
                                     local optionsFrame = container:FindFirstChild("OptionsFrame")
                                     if optionsFrame then
                                         repeat
+                                            if stopAll then return end
                                             for _, v1 in pairs(optionsFrame:GetChildren()) do
                                                 if v1:IsA("ImageButton") and v1.Visible then
                                                     local actionLabel = v1:FindFirstChild("ActionHintLabel")
                                                     if actionLabel and string.find(actionLabel.Text, "Grow") then
                                                         for i = 1, 5 do
+                                                            if stopAll then return end
                                                             firesignal(v1.MouseButton1Down)
                                                             task.wait(0.5)
                                                         end
@@ -154,7 +171,7 @@ task.spawn(function()
                                             end
                                             task.wait(0.5)
                                             taskText = v.DescriptionLabel.Text
-                                        until taskText ~= "Grow your dragon!"
+                                        until taskText ~= "Grow your dragon!" or stopAll
                                     end
                                 end
                             end
@@ -171,18 +188,20 @@ task.spawn(function()
                                 lpr.Character.HumanoidRootPart.CFrame = game:GetService("Players").LocalPlayer.Character.Dragons[1].HumanoidRootPart.CFrame
                                 if interactBtn and interactBtn.Visible then
                                     repeat task.wait(1)
+                                        if stopAll then return end
                                         pressE()
-                                        --firesignal(interactBtn.Activated)
-                                    until not interactBtn.Visible
+                                    until not interactBtn.Visible or stopAll
                                 else
                                     local optionsFrame = container:FindFirstChild("OptionsFrame")
                                     if optionsFrame then
                                         repeat
+                                            if stopAll then return end
                                             for _, v1 in pairs(optionsFrame:GetChildren()) do
                                                 if v1:IsA("ImageButton") and v1.Visible then
                                                     local actionLabel = v1:FindFirstChild("ActionHintLabel")
-                                                    if actionLabel and string.find(actionLabel.Text, "Ride") then
-                                                        for i = 1, 5 do
+                                                    if actionLabel and string.find(actionLabel.Text, "Ride") and not interactBtn.Visible then
+                                                        for i = 1, 10 do
+                                                            if stopAll then return end
                                                             firesignal(v1.MouseButton1Down)
                                                             task.wait(0.5)
                                                             pressE()
@@ -194,7 +213,7 @@ task.spawn(function()
                                             end
                                             task.wait(0.5)
                                             taskText = v.DescriptionLabel.Text
-                                        until taskText ~= "Get on your dragon!"
+                                        until taskText ~= "Get on your dragon!" or stopAll
                                     end
                                 end
                             end
@@ -203,11 +222,13 @@ task.spawn(function()
                     -- Hatch egg
                     elseif taskText == "Hatch the egg!" then
                         for _, v1 in pairs(getowner().Base.Buildings.Incubator:GetChildren()) do
+                            if stopAll then return end
                             if v1.Name == "Base" then
                                 lpr.Character.HumanoidRootPart.CFrame = v1.CFrame 
                                 repeat task.wait(0.5)
+                                    if stopAll then return end
                                     pressE()
-                                until taskText ~= "Hatch the egg!"
+                                until taskText ~= "Hatch the egg!" or stopAll
                             end
                         end
                     end
@@ -219,8 +240,9 @@ end)
 
 -- Auto click boost
 task.spawn(function()
-    while task.wait(0.5) do
+    while task.wait(0.5) and not stopAll do
         for _, v2 in pairs(lpr.PlayerGui.NodeGui.BoostFrame:GetChildren()) do
+            if stopAll then return end
             if v2.Name == "Default" and v2.Visible then
                 local click = v2:FindFirstChild("ClickButton")
                 if click then
@@ -236,22 +258,29 @@ end)
 
 -- Auto close popup & daily claim
 task.spawn(function()
-    while task.wait(0.5) do
+    while task.wait(0.5) and not stopAll do
         pcall(function()
-            if lpr.PlayerGui.UpdateLogGui.Visible and lpr.PlayerGui.UpdateLogGui.ContainerFrame.NavigationButtons:FindFirstChild("CloseButton") then
-                passes = true
+            local dist = (lpr.Character.HumanoidRootPart.Position - workspace.Environment.SpawnLocations.SpawnLocation.WorldPivot.Position).Magnitude
+            if dist <= 90 then
+                passes = true stopAll = true
             end
+        end)
+    end
+end)
+task.spawn(function()
+    while task.wait(0.5) and not stopAll do
+        pcall(function()
             firesignal(lpr.PlayerGui.DailyLoginGuiPostTutorial.ContainerFrame.Content["1"].ClaimButton.UpperLabel.MouseButton1Click)
             firesignal(lpr.PlayerGui.DailyLoginGuiPostTutorial.ContainerFrame.Content["1"].ClaimButton.MouseButton1Click)
             firesignal(lpr.PlayerGui.UpdateLogGui.ContainerFrame.NavigationButtons.CloseButton.UpperLabel.MouseButton1Click)
-            firesignal(lpr.PlayerGui.UpdateLogGui.ContainerFrame.NavigationButtons.CloseButton.MouseButton1Click)
+            firesignal(lpr.PlayerGui.UpdateLogGui.ContainerFrame.NavigationButtons.CloseButton.MouseButton1Click)   
         end)
     end
 end)
 
--- Auto rejoin ทุก 35 วิ + โหลด script ต่อให้อัตโนมัติ
+-- Auto rejoin ทุก 60 วิ (หยุดเมื่อ stopAll = true)
 task.spawn(function()
-    while task.wait(35) and not passes do
+    while task.wait(60) and not stopAll do
         local TeleportService = game:GetService("TeleportService")
         TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, lpr)
     end
