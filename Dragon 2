@@ -260,6 +260,7 @@ end)
 task.spawn(function()
     while task.wait(0.5) and not stopAll do
         pcall(function()
+            task.wait(40)
             local dist = (lpr.Character.HumanoidRootPart.Position - workspace.Environment.SpawnLocations.SpawnLocation.WorldPivot.Position).Magnitude
             if dist <= 90 then
                 passes = true stopAll = true
