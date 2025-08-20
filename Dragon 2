@@ -1,12 +1,12 @@
 --// โหลดใหม่อัตโนมัติเมื่อรีจอย
-local url = "https://raw.githubusercontent.com/Idaowldoa/script/refs/heads/main/Dragon%20%E0%B8%AD%E0%B8%B0%E0%B9%84%E0%B8%A3%E0%B8%99%E0%B8%B0"
+local url = "https://raw.githubusercontent.com/Idaowldoa/script/refs/heads/main/Dragon%202"
 
 if queue_on_teleport then
     queue_on_teleport([[
         loadstring(game:HttpGet("]] .. url .. [["))()
     ]])
 end
-
+local passes = false
 --// เริ่มทำงาน
 repeat task.wait() until game:IsLoaded()
 print('hi')
@@ -32,7 +32,7 @@ end
 
 -- ทำเควส tutorial อัตโนมัติ
 task.spawn(function()
-    while task.wait() do
+    while task.wait() and not passes do
         pcall(function()
             for _, v in pairs(lpr.PlayerGui.TutorialGui.TaskTopFrame:GetChildren()) do
                 if v:IsA('ImageLabel') and tonumber(v.Name) then
@@ -80,8 +80,8 @@ task.spawn(function()
                                 firesignal(lpr.PlayerGui.HUDGui.BottomFrame.CurrentDragonFrame.DragonControlsFrame.Other.Fire.MouseButton1Down)
                                 repeat task.wait()
                                     lpr.Character.HumanoidRootPart.CFrame = board.CFrame * CFrame.new(0, 5, 0)
+                                    firesignal(lpr.PlayerGui.HUDGui.BottomFrame.CurrentDragonFrame.DragonControlsFrame.Other.Fire.MouseButton1Down)
                                 until board.Dead.Value or board.Health.Value <= 0
-                                firesignal(lpr.PlayerGui.HUDGui.BottomFrame.CurrentDragonFrame.DragonControlsFrame.Other.Fire.MouseButton1Down)
                             end
                         end
 
@@ -90,9 +90,10 @@ task.spawn(function()
                         for _, v1 in pairs(workspace.Environment.Nest.EggModel:GetChildren()) do
                             if v1.Name == "Egg" then
                                 lpr.Character.HumanoidRootPart.CFrame = v1.CFrame
-                                task.wait(0.5)
-                                pressE()
-                                task.wait(0.5)
+                                for i = 1, 5 do
+                                    pressE()
+                                    task.wait(0.5)
+                                end
                             end
                         end
 
@@ -171,7 +172,7 @@ task.spawn(function()
                                 if interactBtn and interactBtn.Visible then
                                     repeat task.wait(1)
                                         pressE()
-                                        firesignal(interactBtn.Activated)
+                                        --firesignal(interactBtn.Activated)
                                     until not interactBtn.Visible
                                 else
                                     local optionsFrame = container:FindFirstChild("OptionsFrame")
@@ -182,6 +183,9 @@ task.spawn(function()
                                                     local actionLabel = v1:FindFirstChild("ActionHintLabel")
                                                     if actionLabel and string.find(actionLabel.Text, "Ride") then
                                                         for i = 1, 5 do
+                                                            firesignal(v1.MouseButton1Down)
+                                                            task.wait(0.5)
+                                                            pressE()
                                                             firesignal(v1.MouseButton1Down)
                                                             task.wait(0.5)
                                                         end
@@ -234,6 +238,9 @@ end)
 task.spawn(function()
     while task.wait(0.5) do
         pcall(function()
+            if lpr.PlayerGui.UpdateLogGui.Visible and lpr.PlayerGui.UpdateLogGui.ContainerFrame.NavigationButtons:FindFirstChild("CloseButton") then
+                passes = true
+            end
             firesignal(lpr.PlayerGui.DailyLoginGuiPostTutorial.ContainerFrame.Content["1"].ClaimButton.UpperLabel.MouseButton1Click)
             firesignal(lpr.PlayerGui.DailyLoginGuiPostTutorial.ContainerFrame.Content["1"].ClaimButton.MouseButton1Click)
             firesignal(lpr.PlayerGui.UpdateLogGui.ContainerFrame.NavigationButtons.CloseButton.UpperLabel.MouseButton1Click)
@@ -244,7 +251,7 @@ end)
 
 -- Auto rejoin ทุก 35 วิ + โหลด script ต่อให้อัตโนมัติ
 task.spawn(function()
-    while task.wait(35) do
+    while task.wait(35) and not passes do
         local TeleportService = game:GetService("TeleportService")
         TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, lpr)
     end
