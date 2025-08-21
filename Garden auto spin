@@ -1,0 +1,87 @@
+--[[getgenv().Setting = {
+    ['start Delete'] = true,
+    ['Spin'] = 1, -- 1,2,3
+    ['Delete Color'] = {
+        ["Gray"] = true,
+        ["Blue"] = true,
+        ["Green"] = true,
+        ["Red"] = false,
+        ["Gold"] = false,
+        ["Superrare"] = false
+    },
+}
+local rare = { 
+    ["Gray"] = Color3.fromRGB(171,171,171),
+    ["Blue"] = Color3.fromRGB(85,170,255),
+    ["Green"] = Color3.fromRGB(85,255,0),
+    ["Red"] = Color3.fromRGB(255,0,0),
+    ["Gold"] = Color3.fromRGB(255,170,0),
+    ["Superrare"] = Color3.fromRGB(255,0,255)
+}]]
+local tar = ""
+local function check(c)
+    for colorName, rgb in pairs(rare) do
+        if getgenv().Setting['Delete Color'][colorName] and c == rgb then
+            return true
+        end
+    end
+    return false
+end
+
+local plr = game:GetService("Players").LocalPlayer
+local invGui = plr.PlayerGui.GameGui.Screen.Middle.Inventory
+
+do
+    local gmt = getrawmetatable(game)
+    setreadonly(gmt,false)
+    local old = gmt.__namecall
+    gmt.__namecall = function(self,...)
+        local method = getnamecallmethod()
+        local args = {...}
+
+        if tostring(self) == "SetUnitEquipped" and method == "InvokeServer" then
+            tar = args[1]
+            return old(self, unpack(args))
+        end
+
+        return old(self,...)
+    end
+end
+
+local function deleteBadUnits()
+    for _,v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.GameGui.Screen.Middle.Inventory.Inventory.Frame.Items.Items.ScrollingFrame:GetDescendants()) do
+        if v:IsA("Frame") and v.Name ~= "Frame" and v:FindFirstChild("Bg") and v:FindFirstChild("TextButton") then
+            local bg = v.Bg
+            local color = bg.ImageColor3
+            local button = v.TextButton
+
+            if check(color) then
+                firesignal(button.MouseButton1Click)
+                task.wait(0.1)
+
+                if tar ~= "" then
+                    game:GetService("ReplicatedStorage").RemoteFunctions.DeleteUnit:InvokeServer({tar})
+                    tar = "" 
+                end
+            end
+        end
+    end
+end
+
+task.spawn(function()
+    while task.wait(0.5) do
+        if getgenv().Setting['start Delete'] then
+            deleteBadUnits()
+        end
+        if not game:GetService("Players").LocalPlayer.PlayerGui.GameGui.Screen.Middle.Inventory.Visible then
+            firesignal(game:GetService("Players").LocalPlayer.PlayerGui.GameGui.Screen.Left.Sidebar.Items.Inventory.Items.Button.MouseButton1Click)
+        end
+    end
+end)
+
+
+task.spawn(function()
+    while task.wait(5) do
+        game:GetService("ReplicatedStorage").RemoteFunctions.BuyUnitBox:InvokeServer("ub_classic", getgenv().Setting['Spin'])
+    end
+end)
