@@ -82,6 +82,13 @@ end)
 
 task.spawn(function()
     while task.wait(5) do
-        game:GetService("ReplicatedStorage").RemoteFunctions.BuyUnitBox:InvokeServer("ub_classic", getgenv().Setting['Spin'])
+        local anal = game:GetService("ReplicatedStorage").RemoteFunctions.BuyUnitBox
+        if getgenv().Setting['Spin'] == 1  then
+            anal:InvokeServer("ub_classic_v6",1)
+        elseif getgenv().Setting['Spin'] == 2 then
+            anal:InvokeServer("ub_bee",1)
+        else
+            anal:InvokeServer("ub_corrupted",1)
+        end
     end
 end)
