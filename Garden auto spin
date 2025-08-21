@@ -3,13 +3,13 @@
     ['Spin'] = 1, -- 1,2,3
     ['Delete Color'] = {
         ["Gray"] = true,
-        ["Blue"] = true,
+        ["Blue"] = false,
         ["Green"] = true,
         ["Red"] = false,
         ["Gold"] = false,
         ["Superrare"] = false
     },
-}
+}]]
 local rare = { 
     ["Gray"] = Color3.fromRGB(171,171,171),
     ["Blue"] = Color3.fromRGB(85,170,255),
@@ -17,7 +17,7 @@ local rare = {
     ["Red"] = Color3.fromRGB(255,0,0),
     ["Gold"] = Color3.fromRGB(255,170,0),
     ["Superrare"] = Color3.fromRGB(255,0,255)
-}]]
+}
 local tar = ""
 local function check(c)
     for colorName, rgb in pairs(rare) do
