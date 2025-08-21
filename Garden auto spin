@@ -1,14 +1,18 @@
---[[getgenv().Setting = {
+--[[getgenv().Setting = { 
     ['start Delete'] = true,
     ['Spin'] = 1, -- 1,2,3
     ['Delete Color'] = {
         ["Gray"] = true,
         ["Blue"] = false,
-        ["Green"] = true,
+        ["Green"] = false,
         ["Red"] = false,
         ["Gold"] = false,
         ["Superrare"] = false
     },
+    ['Setting'] = {
+        ['ดีเลย์การสุ่ม'] = 5,
+        ['สุ่มที่ละ'] = 1, -- สุ่มทีละ 1 หรือ 10
+    }
 }]]
 local rare = { 
     ["Gray"] = Color3.fromRGB(171,171,171),
@@ -81,14 +85,15 @@ end)
 
 
 task.spawn(function()
-    while task.wait(5) do
+    while task.wait(getgenv().Setting['Setting']['ดีเลย์การสุ่ม']) do
         local anal = game:GetService("ReplicatedStorage").RemoteFunctions.BuyUnitBox
         if getgenv().Setting['Spin'] == 1  then
-            anal:InvokeServer("ub_classic_v6",1)
+            anal:InvokeServer("ub_classic_v6",getgenv().Setting['Setting']['สุ่มที่ละ'])
         elseif getgenv().Setting['Spin'] == 2 then
-            anal:InvokeServer("ub_bee",1)
+            anal:InvokeServer("ub_bee",getgenv().Setting['Setting']['สุ่มที่ละ'])
         else
-            anal:InvokeServer("ub_corrupted",1)
+            anal:InvokeServer("ub_corrupted",getgenv().Setting['Setting']['สุ่มที่ละ'])
         end
     end
 end)
+
