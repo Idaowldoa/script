@@ -1,0 +1,31 @@
+local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Idaowldoa/Gui-Library/refs/heads/main/Loader%20Gui.lua"))()
+local loaderUI = UILib.Create("Xelarp Loader", 350, 450)
+local statusLabel = loaderUI:AddRightLabel("Not Loaded", UILib.Theme.Danger, 12)
+local versionLabel = loaderUI:AddRightLabel("v1.0.0", UILib.Theme.Accent, 12)
+loaderUI:CreateTab("Script")
+loaderUI:CreateButton("Load Script 8 Ball Pool", function()
+    if LoaderLoaded then print('Already Loaded') return end
+    if not LoaderLoaded then getgenv().LoaderLoaded = true end
+    if game.PlaceId ~= 5523851880 then
+        print('[-] wrong game')
+    end
+    print("กำลังโหลด Script 8 Ball Pool...")
+    task.defer(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Idaowldoa/script/refs/heads/main/8ballpool-Xelarp"))()
+        print('[+] Success')
+        statusLabel:UpdateText("Loaded 8 Ball Pool")
+        statusLabel:UpdateColor(UILib.Theme.Success)
+    end)
+end)
+loaderUI:CreateButton("Load Script Project Delta", function()
+    if LoaderLoaded then print('Already Loaded') return end
+    if not LoaderLoaded then getgenv().LoaderLoaded = true end
+    print("กำลังโหลด Script Project Delta...")
+    task.defer(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Idaowldoa/script/refs/heads/main/Project%20Delta%20-%20Xelarp"))()
+        print('[+] Success')
+        statusLabel:UpdateText("Loaded Project Delta")
+        statusLabel:UpdateColor(UILib.Theme.Success)
+    end)
+end)
+loaderUI:Show()
