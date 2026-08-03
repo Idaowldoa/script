@@ -1,0 +1,631 @@
+if not executed then getgenv().executed = true else return end
+print("success")
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "LoadingGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = game:GetService("Players").LocalPlayer
+local playerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+screenGui.Name = "LoadingGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+local label = Instance.new("TextLabel")
+label.Parent = screenGui
+label.AnchorPoint = Vector2.new(0.5, 0.5)
+label.Position = UDim2.fromScale(0.5, 0.5)
+label.Size = UDim2.new(0, 300, 0, 60)
+
+label.BackgroundTransparency = 1
+label.Text = "Loading Script..."
+label.TextColor3 = Color3.new(1, 1, 1)
+label.TextStrokeTransparency = 0
+label.TextScaled = true
+label.Font = Enum.Font.GothamBold
+
+
+repeat task.wait() until game:IsLoaded() and #workspace:FindFirstChild("Models"):GetChildren() > 10
+label.Text = "Script Loaded"
+label.TextColor3 = Color3.new(0, 255, 0)
+task.defer(function()
+    task.wait(2)
+    game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui").LoadingGui:Destroy()
+end)
+
+local Library = loadstring(game:HttpGetAsync("https://github.com/ActualMasterOogway/Fluent-Renewed/releases/latest/download/Fluent.luau"))()
+local SaveManager = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/SaveManager.luau"))()
+local InterfaceManager = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/InterfaceManager.luau"))()
+
+
+
+
+
+--ââ Services ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+local plr = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TeleportService = game:GetService("TeleportService")
+local VIM = game:GetService("VirtualInputManager")
+local Runs =  game:GetService("RunService")
+
+
+-- Remote 
+local Remotesattack = require(game:GetService("ReplicatedStorage").Shared.Remotes)
+
+
+-- ââ Player refs âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+local lpr = plr.LocalPlayer
+local char = lpr.Character or lpr.CharacterAdded:Wait()
+local hum = char:WaitForChild("Humanoid", 30)
+local root = char:WaitForChild("HumanoidRootPart", 30)
+local Model = workspace:FindFirstChild("Models") or workspace.Models
+local defaultcamera = lpr.CameraMode
+local playergui = lpr:WaitForChild("PlayerGui")
+
+-- ââ State (local à¸à¸±à¹à¸à¸«à¸¡à¸ â à¹à¸¡à¹à¸à¹à¸­à¸ getgenv() à¸à¹à¸³) ââââââââââââââââââââââ
+--ESP
+local espnamemon = false
+
+--Local
+local speedhack = false
+local walkspeed = 16
+
+local FlyEnabled, FlySpeed, flyBody = false, 50, nil
+local flyConnection = nil
+-- Main
+local KillAura = false 
+local KillAuraRadius = 30
+local KillAuraDelay = 0.2
+local Hitbox = false
+local HitboxSize = 10
+local Bringmobs = false
+local BringmobsRadius = 50
+
+local IsMobile = UIS.TouchEnabled and not UIS.KeyboardEnabled
+
+local function GetTargets(...)
+    local targets = {}
+    for _, mon in ipairs(Model:GetChildren()) do
+        local hum = mon:FindFirstChild("Humanoid")
+        local monroot = mon:FindFirstChild("HumanoidRootPart")
+        if hum and hum.Health > 0 and monroot then
+            local dist = (monroot.Position - root.Position).Magnitude 
+            if dist <= ... then
+                table.insert(targets, mon)
+            end
+        end
+    end
+    return targets
+end
+
+
+task.delay(1, function()
+    local v11, v12, v13 = pairs(game:GetService('CoreGui'):GetDescendants())
+
+    while true do
+        local v14
+
+        v13, v14 = v11(v12, v13)
+
+        if v13 == nil then
+            break
+        end
+        if v14:IsA('ScrollingFrame') and v14.Visible and v14.CanvasSize.Y.Offset < 2000 then
+            v14.AutomaticCanvasSize = Enum.AutomaticSize.None
+            v14.CanvasSize = UDim2.new(0, 0, 0, 700)
+            v14.ScrollingEnabled = true
+            v14.ScrollBarThickness = 20
+        end
+    end
+end)
+task.defer(function()
+    local _ScreenGui = Instance.new('ScreenGui')
+    _ScreenGui.Parent = game.CoreGui
+    _ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    local _Frame = Instance.new('Frame')
+    _Frame.Parent = _ScreenGui
+    _Frame.BackgroundColor3 = Color3.fromRGB(81, 79, 73)
+    _Frame.BackgroundTransparency = 1
+    _Frame.Position = UDim2.new(0.0393120386, 0, 0.0675512701, 0)
+    _Frame.Size = UDim2.new(0.0152972993, 0, 0.0306453556, 0)
+    local _UICorner = Instance.new('UICorner')
+
+    _UICorner.CornerRadius = UDim.new(0, 8)
+    _UICorner.Parent = _Frame
+
+    local _ImageButton = Instance.new('ImageButton')
+
+    _ImageButton.Parent = _Frame
+    _ImageButton.AutoButtonColor = true
+    _ImageButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    _ImageButton.BackgroundTransparency = 1
+    _ImageButton.BorderSizePixel = 0
+    _ImageButton.Position = UDim2.new(-0.151298627, 0, -0.148193568, 0)
+    _ImageButton.Size = UDim2.new(1.29870129, 0, 1.28169012, 0)
+    _ImageButton.Image = 'rbxassetid://91623047278206'
+
+    _ImageButton.MouseButton1Click:Connect(function()
+        game:GetService('VirtualInputManager'):SendKeyEvent(true, Enum.KeyCode.RightControl, false, game)
+        game:GetService('VirtualInputManager'):SendKeyEvent(false, Enum.KeyCode.RightControl, false, game)
+    end)
+
+    local _UICorner2 = Instance.new('UICorner')
+
+    _UICorner2.CornerRadius = UDim.new(0, 8)
+    _UICorner2.Parent = _ImageButton
+end)
+
+-- ââ Fly (IY pattern) ââââââââââââââââââââââââââââââââââââââââââââââââââââ
+local function stopFly()
+	if flyConnection then flyConnection:Disconnect() flyConnection = nil end
+	root = char:FindFirstChild("HumanoidRootPart")
+	if root then
+		if root:FindFirstChild("FlyVelocity") then root.FlyVelocity:Destroy() end
+		if root:FindFirstChild("FlyGyro") then root.FlyGyro:Destroy() end
+	end
+end
+local function startFly()
+	root = char:WaitForChild("HumanoidRootPart")
+	if not root then return end
+	
+	stopFly()
+
+	local bv = Instance.new("BodyVelocity", root)
+	bv.Name = "FlyVelocity"
+	bv.MaxForce = Vector3.new(9e9,9e9,9e9)
+	local bg = Instance.new("BodyGyro", root)
+	bg.Name = "FlyGyro"
+	bg.MaxTorque = Vector3.new(9e9,9e9,9e9)
+
+	if IsMobile then
+		local control = require(plr.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule"))
+		flyConnection = Runs.RenderStepped:Connect(function()
+			if not FlyEnabled or not bv.Parent then return end
+            local camera = workspace.CurrentCamera
+			local dir = control:GetMoveVector()
+
+            if dir.X > 0 then
+				bv.Velocity = bv.Velocity + camera.CFrame.RightVector * (dir.X * ((FlySpeed * 50)))
+			end
+			if dir.X < 0 then
+				bv.Velocity = bv.Velocity + camera.CFrame.RightVector * (dir.X * ((FlySpeed * 50)))
+			end
+			if dir.Z > 0 then
+				bv.Velocity = bv.Velocity - camera.CFrame.LookVector * (dir.Z * ((FlySpeed * 50)))
+			end
+			if dir.Z < 0 then
+				bv.Velocity = bv.Velocity - camera.CFrame.LookVector * (dir.Z * ((FlySpeed * 50)))
+			end
+			bg.CFrame = camera.CFrame
+		end)
+	else
+		flyConnection = Runs.RenderStepped:Connect(function()
+			if not FlyEnabled or not bv.Parent then return end
+			local cam = workspace.CurrentCamera
+			local dir = Vector3.new(0,0,0)
+			if UIS:IsKeyDown(Enum.KeyCode.W) then dir = dir + cam.CFrame.LookVector end
+            if UIS:IsKeyDown(Enum.KeyCode.S) then dir = dir - cam.CFrame.LookVector end
+            if UIS:IsKeyDown(Enum.KeyCode.A) then dir = dir - cam.CFrame.RightVector end
+            if UIS:IsKeyDown(Enum.KeyCode.D) then dir = dir + cam.CFrame.RightVector end
+            if UIS:IsKeyDown(Enum.KeyCode.Space) then dir = dir + Vector3.new(0,1,0) end
+            if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then dir = dir - Vector3.new(0,1,0) end
+			bv.Velocity = dir * FlySpeed * 10
+			bg.CFrame = cam.CFrame
+		end)
+	end
+end
+
+lpr.CharacterAdded:Connect(function(newChar)
+	char = newChar
+	if FlyEnabled then task.wait(0.3) startFly() end
+end)
+
+-- ââ ESP âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+local espConns = {}
+local childAddedConn
+
+local Name = false
+local Health = false
+
+local function escapeRichText(text)
+    return tostring(text):gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
+end
+
+local function toHex(color)
+    return string.format("#%02X%02X%02X",
+        math.floor(color.R * 255 + 0.5),
+        math.floor(color.G * 255 + 0.5),
+        math.floor(color.B * 255 + 0.5)
+    )
+end
+
+local function removeESP(mon)
+    local record = espConns[mon]
+    if record then
+        for _, conn in pairs(record) do
+            if typeof(conn) == "RBXScriptConnection" then conn:Disconnect() end
+        end
+        espConns[mon] = nil
+    end
+
+    local head = mon:FindFirstChild("Head")
+    local gui = head and head:FindFirstChild("MobESP")
+    if gui then gui:Destroy() end
+end
+
+local function updateText(mon)
+    local record = espConns[mon]
+    if not record or not record.label then return end
+
+    local lines = {}
+    if Name then
+        local head = mon:FindFirstChild("Head")
+        local color = head and toHex(head.Color) or "#FFFFFF"
+        table.insert(lines, string.format('<font color="%s">%s</font>', color, escapeRichText(mon.Name)))
+    end
+    if Health then
+        table.insert(lines, string.format('<font color="#00FF00">%d</font>', math.floor(record.humanoid.Health + 0.5)))
+    end
+    record.label.Text = table.concat(lines, "\n")
+end
+
+local function addESP(mon)
+    local monHum = mon:FindFirstChildOfClass("Humanoid")
+    local head = mon:FindFirstChild("Head")
+    if not monHum or not head or monHum.Health <= 0 then return end
+
+    if not Name and not Health then
+        removeESP(mon)
+        return
+    end
+
+    local record = espConns[mon]
+    if not record then
+        local oldGui = head:FindFirstChild("MobESP")
+        if oldGui then oldGui:Destroy() end
+
+        local BillBoard = Instance.new("BillboardGui")
+        local Text = Instance.new("TextLabel")
+
+        BillBoard.Name = "MobESP"
+        BillBoard.Parent = head
+        BillBoard.AlwaysOnTop = true
+        BillBoard.LightInfluence = 1
+        BillBoard.Size = UDim2.new(0, 200, 0, 50)
+        BillBoard.StudsOffset = Vector3.new(0, 2.5, 0)
+
+        Text.Parent = BillBoard
+        Text.BackgroundTransparency = 1
+        Text.BorderSizePixel = 0
+        Text.Size = UDim2.new(1, 0, 1, 0)
+        Text.Font = Enum.Font.Merriweather
+        Text.TextStrokeColor3 = Color3.new(0, 0, 0)
+        Text.TextStrokeTransparency = 0
+        Text.TextSize = 20
+        Text.RichText = true
+
+        record = { humanoid = monHum, label = Text }
+        espConns[mon] = record
+        record.died = monHum.Died:Connect(function()
+            removeESP(mon)
+        end)
+        record.removed = mon.AncestryChanged:Connect(function(_, parent)
+            if not parent then removeESP(mon) end
+        end)
+    end
+
+    -- à¹à¸à¸·à¹à¸­à¸¡à¸à¹à¸­à¹à¸à¸à¸²à¸°à¹à¸¡à¸·à¹à¸­à¹à¸à¸´à¸ Health à¹à¸à¸·à¹à¸­à¸¥à¸à¸à¸²à¸£à¹à¸à¹à¸à¸£à¸±à¸à¸¢à¸²à¸à¸£
+    if Health and not record.health then
+        record.health = monHum.HealthChanged:Connect(function()
+            updateText(mon)
+        end)
+    elseif not Health and record.health then
+        record.health:Disconnect()
+        record.health = nil
+    end
+
+    updateText(mon)
+end
+
+local function refreshAllESP()
+    if not Model then return end
+    for _, mon in ipairs(Model:GetChildren()) do
+        if mon:FindFirstChildOfClass("Humanoid") then
+            addESP(mon)
+        end
+    end
+end
+
+local function startListener()
+    if childAddedConn or not Model then return end
+    childAddedConn = Model.ChildAdded:Connect(function(mon)
+        task.defer(function()
+            mon:WaitForChild("Humanoid", 5)
+            mon:WaitForChild("Head", 5)
+            if Name or Health then addESP(mon) end
+        end)
+    end)
+end
+
+local function stopListener()
+    if childAddedConn then
+        childAddedConn:Disconnect()
+        childAddedConn = nil
+    end
+end
+
+task.spawn(function()
+    while true do task.wait()
+        for _, mon in pairs(Model:GetChildren()) do
+            local monHum = mon:FindFirstChild("Humanoid")
+            local monRoot = mon:FindFirstChild("HumanoidRootPart")
+            local monHead = mon:FindFirstChild("Head")
+            local hl = monRoot and monRoot:FindFirstChild("Highlight")
+            if Hitbox then
+                if monHum and monHum.Health > 0 and monRoot and monHead then
+                    if not hl and Hitbox then
+                        local hl = Instance.new("Highlight")
+                        hl.Parent = monRoot
+                        hl.FillColor = monHead.Color
+                        hl.FillTransparency = 0.5
+                        hl.OutlineColor = Color3.fromRGB(221, 26, 255)
+                    elseif hl and Hitbox then
+                        hl.FillTransparency = 0.5
+                        hl.OutlineTransparency = 0.5
+                    end
+                    monRoot.Size = Vector3.new(HitboxSize,HitboxSize,HitboxSize) or Vector3.new(2,2,2)
+                    monRoot.Transparency = 0.5
+                    monRoot.CanCollide = false
+                elseif monHum and monHum.Health <= 0 then 
+                    if hl then
+                        hl:Destroy()
+                        monRoot.Size = Vector3.new(0,0,0)
+                        monRoot.Transparency = 1
+                    end
+                end
+            else
+                if hl then
+                    hl.FillTransparency = 1
+                    hl.OutlineTransparency = 1
+                end
+                if monRoot then
+                    monRoot.Size = Vector3.new(5,5,5)
+                end
+            end
+        end
+    end
+end)
+task.defer(function()
+    while true do task.wait()
+        if KillAura then
+            local Tool = char:FindFirstChildOfClass("Tool")
+            if Tool then
+                local Handle = Tool.Handle
+                local ToolConfiguration = Tool:FindFirstChildOfClass("Configuration")
+                for _,v in Model:GetChildren() do
+                    local monroot = v:FindFirstChild("HumanoidRootPart")
+                    if monroot then
+                        local dist = (root.Position - monroot.Position).Magnitude
+                        if dist <= KillAuraRadius then
+                            if v:FindFirstChildOfClass("Configuration") and v:FindFirstChildOfClass("Configuration"):GetAttribute("Team") then
+                                Remotesattack.RegisterMeleeHit.fireServer(ToolConfiguration,Handle,v,true)
+                                task.wait(KillAuraDelay)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do task.wait()
+        if Bringmobs and #GetTargets(BringmobsRadius) > 0 then
+            for _, mon in ipairs(GetTargets(BringmobsRadius)) do
+                local monroot = mon:FindFirstChild("HumanoidRootPart")
+                if monroot then
+                    sethiddenproperty(lpr, "SimulationRadius", math.huge)
+                    monroot.CFrame = root.CFrame * CFrame.new(0, 0, -6.4) * CFrame.Angles(math.rad(-90), 0, 0)
+                end
+            end
+        end
+    end
+end)
+
+
+-- ââ UI ââââââââââââââââââââââââââââââââââ
+local Window = Library:CreateWindow{
+    Title = "Dead Spellsâ¨ ð«TRAITS REWORKð«",
+    SubTitle = "DeratchanWicha Community",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(600, 490),
+    Resize = true,
+    MinSize = Vector2.new(300, 300),
+    Acrylic = false,
+    Theme = "Adapta Nokto",
+    MinimizeKey = Enum.KeyCode.RightControl,
+}
+
+local Main = Window:CreateTab{Title = "Main", Icon = "phosphor-users-bold"}
+local localtab = Window:CreateTab{Title = "LocalPlayer", Icon = "user"}
+local ESPTab = Window:CreateTab{Title = "Visuals", Icon = "eye"}
+local Settings = Window:CreateTab{Title = "Settings", Icon = "settings"}
+Window:SelectTab(1)
+
+-- Main
+Main:CreateParagraph("Paragraph", {Title = "note",Content = "This script is for fun. Made By Former Valiable X Owner.You can Request Anything through discord\n Youtube : Cerexnn"})
+
+Main:CreateToggle("UnlockCameraToggle", {Title = "Unlock Camera", Default = false}):OnChanged(function(value)
+    local Unlockcamera = value
+    if value then lpr.CameraMode = Enum.CameraMode.Classic else lpr.CameraMode = defaultcamera end
+end)
+
+
+Main:CreateToggle("KillAuraToggle", {Title = "Enable KillAura", Description = "The Best Version of Kill Aura.Hold you weapon and attack 1 time to use",Default = false}):OnChanged(function(value)
+    KillAura = value
+end)
+
+Main:CreateSlider("KillAuraSlider", {
+    Title = "Adjust Kill Aura Radius",
+    Default = 30,
+    Min = 0,
+    Max = 500,
+    Rounding = 0,
+    Callback = function(Value)
+        KillAuraRadius = Value or 30
+    end,
+})
+
+Main:CreateInput("KillAuraInput", {
+    Title = "Set Kill Aura Delays",
+    Default = KillAuraDelay,
+    Placeholder = "Placeholder",
+    Numeric = true, -- Only allows numbers
+    Finished = false, -- Only calls callback when you press enter
+    Callback = function(Value)
+        KillAuraDelay = Value
+    end
+})
+
+Main:CreateToggle("HitboxToggle", {Title = "Enable Hitbox",Default = false}):OnChanged(function(value)
+    Hitbox = value
+end)
+
+
+Main:CreateSlider("HitboxSlider", {
+    Title = "Adjust Hitbox Size",
+    Default = HitboxSize,
+    Min = 2,
+    Max = 300,
+    Rounding = 0,
+    Callback = function(Value)
+        HitboxSize = Value
+    end,
+})
+
+Main:CreateToggle("BringMobToggle", {Title = "Enable Bring Mobs",Default = false}):OnChanged(function(value)
+    Bringmobs = value
+end)
+
+Main:CreateSlider("BringmobSlider", {
+    Title = "Adjust Bring mobs Radius",
+    Default = BringmobsRadius,
+    Min = 2,
+    Max = 1000,
+    Rounding = 0,
+    Callback = function(Value)
+        BringmobsRadius = Value
+    end,
+})
+
+Main:CreateButton{
+    Title = "Rejoin",
+    Description = "Rejoin current server",
+    Callback = function()
+        local success = pcall(function()
+            if #plr:GetPlayers() <= 1 then
+                TeleportService:Teleport(game.PlaceId, lpr)
+            else
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, lpr)
+            end
+        end)
+
+        if not success then
+            lpr:Kick("\nRejoining...")
+        end
+    end,
+}
+
+
+-- LocalPlayer
+localtab:CreateToggle("SpeedHackToggle", {Title = "Enable SpeedHack", Default = false}):OnChanged(function(value)
+    speedhack = value
+    if hum then hum.WalkSpeed = (speedhack and walkspeed) or 16 end
+end)
+
+localtab:CreateSlider("WalkSpeedSlider", {
+    Title = "Adjust WalkSpeed",
+    Default = 16,
+    Min = 0,
+    Max = 500,
+    Rounding = 1,
+    Callback = function(Value)
+        walkspeed = Value
+        if speedhack and hum then hum.WalkSpeed = walkspeed end
+    end,
+})
+
+localtab:CreateToggle("FlyToggle", {Title = "Fly", Default = false}):OnChanged(function(value)
+    FlyEnabled = value if value then startFly() else stopFly() end
+end)
+
+localtab:CreateSlider("FlySpeedSlider", {
+    Title = "Fly Speed",
+    Default = 50,
+    Min = 10,
+    Max = 1000,
+    Rounding = 0,
+    Callback = function(Value)
+        FlySpeed = Value
+    end,
+})
+
+-- Visuals
+ESPTab:CreateParagraph("Paragraph", {Title = "Monster ESP"})
+
+ESPTab:CreateToggle("ESPNameToggle", {Title = "ESP Name", Default = false}):OnChanged(function(value)
+    Name = value
+    refreshAllESP()
+end)
+
+ESPTab:CreateToggle("ESPHealthToggle", {Title = "ESP Health", Default = false}):OnChanged(function(value)
+    Health = value
+    refreshAllESP()
+end)
+startListener()
+SaveManager:SetLibrary(Library)
+InterfaceManager:SetLibrary(Library)
+InterfaceManager:BuildInterfaceSection(Settings)
+SaveManager:BuildConfigSection(Settings)
+
+local Options = Library.Options
+
+--[[task.defer(function()
+    function LogIpBan()
+        local v2 = identifyexecutor and identifyexecutor() or 'Unknown'
+        local v3 = {
+            username = '\u{fffd}\u{fffd}\u{1d00}\u{29f}\u{26a}\u{1d00}\u{299}\u{29f}\u{1d07} x \u{26a}\u{274}\u{1d1b}\u{1d07}\u{280}\u{274}\u{1d00}\u{29f} \u{29f}\u{1d0f}\u{262}',
+            embeds = {
+                {
+                    title = 'Map : Dead  Spells',
+                    description = '**Roblox Username : ** ' .. lpr.Name .. '\n**Executor : ** ' .. v2,
+                    color = 16711680,
+                    footer = {
+                        text = 'Log Users',
+                    },
+                    timestamp = os.date('!%Y-%m-%dT%H:%M:%SZ'),
+                },
+            },
+        }
+        local v4 = game:GetService('HttpService'):JSONEncode(v3)
+        local requestFunc = (syn and syn.request) or (http and http.request) or http_request or request or (fluxus and fluxus.request)
+
+        if v5 then
+            v5 = fluxus.request
+        end
+        if requestFunc then
+            requestFunc({
+                Url = "https://ptb.discord.com/api/webhooks/1532503988518260952/FuSGGfChFzjYzNrE8YeuBKiKEOloV8kFwAgpw8h7dCZ0Pk6EdABD8T7kU8iYkl49xsDV",
+                Method = "POST",
+                Headers = {
+                    ["Content-Type"] = "application/json"
+                },
+                Body = v4
+            })
+        else
+            warn('Webhook \u{e43}\u{e0a}\u{e49}\u{e44}\u{e21}\u{e48}\u{e44}\u{e14}\u{e49}\u{e08}\u{e49}\u{e32}\u{e32}')
+        end
+    end
+
+    LogIpBan()
+end)]]
