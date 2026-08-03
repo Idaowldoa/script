@@ -1,0 +1,591 @@
+--[[getgenv().Autowin = {
+    Enable = true,
+    Mode = {
+        ["Normal World"] = true,
+        ["Void"] = true,
+    }
+}
+]]
+if not executedautowin then getgenv().executedautowin = true else return end
+if Autowin.Mode["Void"] then Autowin.Mode['Normal World'] = true end
+repeat task.wait() until game:IsLoaded() and #workspace.Models:GetChildren() > 7
+
+local plr = game:GetService("Players") 
+local lpr = plr.LocalPlayer
+local char = lpr.Character or lpr.CharacterAdded:Wait()
+local hum = char:WaitForChild("Humanoid")
+local root = char:WaitForChild("HumanoidRootPart")
+local Map = workspace:WaitForChild("Map")
+local Presets = Map:WaitForChild("Presets")
+local End = Presets:FindFirstChild("End")
+local Remotesattack = require(game:GetService("ReplicatedStorage").Shared.Remotes)
+local Model = workspace:FindFirstChild("Models") or workspace.Models
+local CoreGui = game:GetService("CoreGui")
+local Lighting = game:GetService("Lighting")
+
+--[[if not _G.DoneNormalWorld then
+    _G.DoneNormalworld = false
+    _G.DoneVoid = false
+end]]
+local Status, Place, Task
+if not _G.DoneNormalworld then
+    local GROUP_LOGO = "rbxassetid://75504596041054"
+    local Blur = Instance.new("BlurEffect")
+    Blur.Name = "StatusUIBlur"
+    Blur.Size = 22
+    Blur.Parent = Lighting
+
+    local Gui = Instance.new("ScreenGui")
+    Gui.Name = "StatusUI"
+    Gui.IgnoreGuiInset = true
+    Gui.ResetOnSpawn = false
+    Gui.DisplayOrder = 999
+    Gui.Parent = CoreGui
+
+    -- พื้นหลังดำทับฉากเกม
+    local Overlay = Instance.new("Frame")
+    Overlay.Name = "Overlay"
+    Overlay.Size = UDim2.fromScale(1, 1)
+    Overlay.BackgroundColor3 = Color3.new(0, 0, 0)
+    Overlay.BackgroundTransparency = 0.25
+    Overlay.BorderSizePixel = 0
+    Overlay.ZIndex = 1
+    Overlay.Parent = Gui
+
+    local Main = Instance.new("Frame")
+    Main.Name = "Main"
+    Main.AnchorPoint = Vector2.new(0.5, 0.5)
+    Main.Position = UDim2.fromScale(0.5, 0.5)
+    Main.Size = UDim2.fromOffset(650, 445)
+    Main.BackgroundColor3 = Color3.fromRGB(15, 15, 17)
+    Main.BorderSizePixel = 0
+    Main.ZIndex = 2
+    Main.Parent = Gui
+
+    Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 18)
+
+    local Stroke = Instance.new("UIStroke")
+    Stroke.Color = Color3.fromRGB(70, 70, 76)
+    Stroke.Thickness = 1.5
+    Stroke.Parent = Main
+
+    local function newText(text, size, position, textSize, bold, align)
+        local Label = Instance.new("TextLabel")
+        Label.BackgroundTransparency = 1
+        Label.Position = position
+        Label.Size = size
+        Label.Font = bold and Enum.Font.GothamBold or Enum.Font.Gotham
+        Label.Text = text
+        Label.TextSize = textSize
+        Label.TextColor3 = Color3.fromRGB(245, 245, 245)
+        Label.TextXAlignment = align or Enum.TextXAlignment.Left
+        Label.TextYAlignment = Enum.TextYAlignment.Center
+        Label.ZIndex = 3
+        Label.Parent = Main
+        return Label
+    end
+
+    local function divider(y)
+        local Line = Instance.new("Frame")
+        Line.Position = UDim2.fromOffset(28, y)
+        Line.Size = UDim2.new(1, -56, 0, 1)
+        Line.BackgroundColor3 = Color3.fromRGB(57, 57, 62)
+        Line.BorderSizePixel = 0
+        Line.ZIndex = 3
+        Line.Parent = Main
+    end
+
+    -- โลโก้สังกัด
+    local Logo = Instance.new("ImageLabel")
+    Logo.Position = UDim2.fromOffset(28, 25)
+    Logo.Size = UDim2.fromOffset(46, 46)
+    Logo.BackgroundColor3 = Color3.fromRGB(30, 30, 34)
+    Logo.BorderSizePixel = 0
+    Logo.Image = GROUP_LOGO
+    Logo.ScaleType = Enum.ScaleType.Fit
+    Logo.ZIndex = 3
+    Logo.Parent = Main
+    Instance.new("UICorner", Logo).CornerRadius = UDim.new(0, 12)
+
+    newText("DEAD SPELLS", UDim2.fromOffset(430, 30), UDim2.fromOffset(90, 23), 25, true)
+    local Subtitle = newText("SCRIPT STATUS", UDim2.fromOffset(430, 22), UDim2.fromOffset(91, 52), 14, false)
+    Subtitle.TextColor3 = Color3.fromRGB(165, 165, 175)
+
+    -- Avatar
+    local Avatar = Instance.new("ImageLabel")
+    Avatar.AnchorPoint = Vector2.new(0.5, 0)
+    Avatar.Position = UDim2.new(0.5, 0, 0, 94)
+    Avatar.Size = UDim2.fromOffset(82, 82)
+    Avatar.BackgroundTransparency = 1
+    Avatar.Image = plr:GetUserThumbnailAsync(
+        lpr.UserId,
+        Enum.ThumbnailType.HeadShot,
+        Enum.ThumbnailSize.Size420x420
+    )
+    Avatar.ZIndex = 3
+    Avatar.Parent = Main
+    Instance.new("UICorner", Avatar).CornerRadius = UDim.new(1, 0)
+
+    local AvatarStroke = Instance.new("UIStroke")
+    AvatarStroke.Color = Color3.fromRGB(90, 255, 120)
+    AvatarStroke.Thickness = 2
+    AvatarStroke.Parent = Avatar
+
+    local Welcome = newText(
+        "Hi, " .. lpr.Name,
+        UDim2.fromOffset(500, 28),
+        UDim2.new(0.5, -250, 0, 185),
+        22,
+        true,
+        Enum.TextXAlignment.Center
+    )
+
+    divider(230)
+
+    -- คำตอบอยู่บรรทัดเดียวกับหัวข้อ
+    local function createRow(y, title, value, valueColor)
+        local Title = newText(title, UDim2.fromOffset(220, 32), UDim2.fromOffset(40, y), 17, true)
+        Title.TextColor3 = Color3.fromRGB(180, 180, 188)
+
+        local Value = newText(
+            value,
+            UDim2.fromOffset(330, 32),
+            UDim2.fromOffset(280, y),
+            19,
+            false,
+            Enum.TextXAlignment.Right
+        )
+        Value.TextColor3 = valueColor or Color3.fromRGB(245, 245, 245)
+
+        return Value
+    end
+
+    Status = createRow(252, "Status", "-", Color3.fromRGB(90, 255, 120))
+    divider(294)
+
+    Place = createRow(315, "You are in", "-")
+    divider(357)
+
+    Task = createRow(378, "Current Task", "-")
+
+    local Credit = newText(
+        "by DeratchanWicha Community",
+        UDim2.fromOffset(500, 20),
+        UDim2.new(0.5, -250, 1, -31),
+        14,
+        false,
+        Enum.TextXAlignment.Center
+    )
+    Credit.TextColor3 = Color3.fromRGB(135, 135, 145)
+end
+
+
+local Noclip = nil
+local Clip = nil
+
+local function noclip()
+	Clip = false
+	local function Nocl()
+		if Clip == false and game.Players.LocalPlayer.Character ~= nil then
+			for _,v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+				if v:IsA('BasePart') and v.CanCollide and v.Name ~= floatName then
+					v.CanCollide = false
+				end
+			end
+		end
+		wait(0.21) -- basic optimization
+	end
+	Noclip = game:GetService('RunService').Stepped:Connect(Nocl)
+end
+
+local function clip()
+	if Noclip then Noclip:Disconnect() end
+	Clip = true
+end
+local function ShouldStop()
+    if _G.DoneVoid then
+        return true
+    end
+
+    if _G.DoneNormalworld and not Autowin.Mode["Void"] then
+        return true
+    end
+
+    return false
+end
+
+local function checkNormalWorld()
+    local Island = workspace:FindFirstChild("Island")
+    if Island then
+        _G.DoneNormalworld = true
+    end
+end
+
+repeat task.wait() until root
+local function weapon()
+    for _, tool in pairs(lpr.Backpack:GetChildren()) do
+        local Configuration = tool:FindFirstChildOfClass("Configuration")
+        local Handle = tool:FindFirstChild("Handle")
+        if Configuration and Configuration:GetAttribute("Damage") and Configuration:GetAttribute("MeleeType") == "Short" and Handle then
+            return tool , Configuration , Handle
+        end
+    end
+    for _, tool in pairs(char:GetChildren()) do
+        local Configuration = tool:FindFirstChildOfClass("Configuration")
+        local Handle = tool:FindFirstChild("Handle")
+        if Configuration and Configuration:GetAttribute("Damage") and Configuration:GetAttribute("MeleeType") == "Short" and Handle then
+            return tool , Configuration , Handle
+        end
+    end
+end
+
+if not root:FindFirstChild("Lock") then
+    local BodyVelocity = Instance.new('BodyVelocity')
+    BodyVelocity.Name = 'Lock'
+    BodyVelocity.Parent = root
+    BodyVelocity.MaxForce = Vector3.new(9000000000, 9000000000, 9000000000)
+    BodyVelocity.Velocity = Vector3.new(0, 0, 0)
+end
+
+task.defer(function()
+    while Autowin.Enable and not ShouldStop() do
+        task.wait()
+        local weapon, ToolConfiguration, Handle = weapon()
+        if weapon and ToolConfiguration and Handle then
+            for _,v in Model:GetChildren() do
+                local monroot = v:FindFirstChild("HumanoidRootPart")
+                if monroot then
+                    local config = v:FindFirstChildOfClass("Configuration")
+                    if config and config:GetAttribute("Team") then
+                        Remotesattack.RegisterMeleeHit.fireServer(ToolConfiguration,Handle,v,true)
+                    end
+                end
+            end
+        end
+    end
+end)
+
+task.defer(function()
+    while Autowin.Enable and not ShouldStop() do
+        task.wait(0.5)
+        checkNormalWorld()
+        local tool = weapon()
+        if tool then
+            hum:EquipTool(tool)
+        end
+    end
+end)
+
+task.defer(function()
+    while Autowin.Enable and not ShouldStop() do
+        task.wait(0.5)
+        local tool = weapon()
+        if tool then
+            hum:EquipTool(tool)
+            task.wait(0.2)
+            tool:Activate()
+            return
+        end
+    end
+end)
+task.defer(function()
+    while Autowin.Enable and (Autowin.Mode["Normal World"] or Autowin.Mode["Void"]) and not _G.DoneNormalworld do task.wait()
+        local End = Presets:FindFirstChild("End")
+        if End then
+            Status.Text = "Found Void Portal"
+            local Portal = End:FindFirstChild("Portal")
+            if Portal then
+                local AltarAndForcefield = End:WaitForChild("AltarAndForcefield")
+                if AltarAndForcefield then
+                    local forcefield = AltarAndForcefield:FindFirstChild("Forcefield")
+                    if forcefield then
+                        local prompt = forcefield:FindFirstChild("ProximityPrompt")
+                        if prompt then
+                            Status.Text = "Destroy Force Field"
+                            repeat task.wait()
+                                root.CFrame = forcefield.CFrame  * CFrame.new(0,5,0)
+                                fireproximityprompt(prompt)
+                                task.wait(0.2)
+                            until forcefield.Transparency == 1 or not forcefield
+                            local promptendgame = AltarAndForcefield:FindFirstChild("Prompt")
+                            if promptendgame then
+                                local prompt = promptendgame:FindFirstChild("ProximityPrompt")
+                                if prompt then
+                                    Status.Text = "Start Void Portal"
+                                    repeat task.wait()
+                                        root.CFrame = promptendgame.CFrame * CFrame.new(0,5,0)
+                                        fireproximityprompt(prompt)
+                                        task.wait(0.2)
+                                    until promptendgame:FindFirstChild("Timer").TextLabel.Text ~= ""
+                                    repeat task.wait()
+                                        Status.Text = "Waiting for Portal to Open (" .. promptendgame:FindFirstChild("Timer").TextLabel.Text .. ")"
+                                        local Cilent = Portal:FindFirstChild("ClientSectors")
+                                        local TouchDetector = Portal:FindFirstChild("TouchDetector")
+                                        game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 200, 47077.0508)
+                                    until Cilent:GetAttribute("PortalAngle") <= 0
+                                    if root:FindFirstChild("Lock") then
+                                        root.Lock:Destroy()
+                                    end
+                                    Status.TextColor3 = Color3.fromRGB(0, 255, 0)
+                                    Status.Text = "Done"
+                                    _G.DoneNormalworld = true
+                                    if not Autowin.Mode["Void"] then
+                                        task.wait(2)
+
+                                        if CoreGui:FindFirstChild("StatusUI") then
+                                            CoreGui.StatusUI:Destroy()
+                                        end
+
+                                        local blur = Lighting:FindFirstChild("StatusUIBlur")
+                                        if blur then
+                                            blur:Destroy()
+                                        end
+                                    end
+                                    return
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        else 
+            repeat task.wait()
+                Status.TextColor3 = Color3.fromRGB(255, 80, 80)
+                Place.Text = "Normal World"
+                Status.Text = "Waiting for Void Portal"
+                local End = Presets:FindFirstChild("End")
+                game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 200, 47077.0508)
+                task.wait(0.5)
+            until End and End:WaitForChild("AltarAndForcefield")
+        end
+    end
+end)
+
+task.defer(function()
+    while Autowin.Enable and not ShouldStop() do task.wait()
+        if not CoreGui:FindFirstChild("StatusUI") then return end
+        if _G.DoneNormalworld and Autowin.Mode["Void"] then 
+            if not root:FindFirstChild("Lock") then
+                local BodyVelocity = Instance.new('BodyVelocity')
+                BodyVelocity.Name = 'Lock'
+                BodyVelocity.Parent = root
+                BodyVelocity.MaxForce = Vector3.new(9000000000, 9000000000, 9000000000)
+                BodyVelocity.Velocity = Vector3.new(0, 0, 0)
+            end
+            local Island = workspace:FindFirstChild("Island")
+            if Island then
+                Status.TextColor3 = Color3.fromRGB(255, 80, 80)
+                Place.TextColor3 = Color3.fromRGB(0, 0, 0)
+                Place.Text = "Void"
+                Status.Text = "Entering Void"
+                local VoidArea2 = Island:FindFirstChild("VoidArea2")
+                if VoidArea2 then
+                    Status.Text = "Checking Viridian"
+                    root.CFrame = CFrame.new(-16.8365192, 176.983704, -59116.7109)
+                    task.wait(3)
+                    repeat task.wait() until Model:FindFirstChild("CommanderViridianBow") or Model:FindFirstChild("CommanderViridian")
+                    local Viridian = Model:FindFirstChild("CommanderViridian")
+                    local bosshum = Viridian and Viridian:FindFirstChild("Humanoid")
+                    if Viridian and bosshum then
+                        Status.TextColor3 = Color3.fromRGB(0, 255, 0)
+                        Status.Text = "Found Viridian."
+                        repeat 
+                            local health = bosshum.Health
+                            Status.TextColor3 = Color3.fromRGB(255, 80, 80)
+                            Status.Text = "Waiting for Viridian Death"
+                            Task.TextColor3 = Color3.fromRGB(255, 80, 80)
+                            Task.Text = "Killing Viridian | HP : " .. health
+                            root.CFrame = CFrame.new(-16.8365192, 176.983704, -59116.7109)
+                            task.wait(0.1)
+                        until not Viridian or Model:FindFirstChild("CommanderViridianBow")
+                        Task.TextColor3 = Color3.fromRGB(255, 255, 255)
+                        Task.Text = "-"
+                        Status.TextColor3 = Color3.fromRGB(0, 255, 0)
+                        Status.Text = "Viridian Dead"
+                        Status.TextColor3 = Color3.fromRGB(255, 80, 80)
+                    elseif Model:FindFirstChild("CommanderViridianBow") then
+                        Status.Text = "Checking Cerulean."
+                        root.CFrame = CFrame.new(88.7765732, 300.087585, -57339.7578)
+                        task.wait(3)
+                        repeat task.wait() until Model:FindFirstChild("CommanderCeruleanStaff") or Model:FindFirstChild("CommanderCerulean")
+                        local Cerulean = Model:FindFirstChild("CommanderCerulean")
+                        local bosshum = Cerulean and Cerulean:FindFirstChild("Humanoid")
+                        if Cerulean and bosshum then
+                            Status.TextColor3 = Color3.fromRGB(0, 255, 0)
+                            Status.Text = "Found Cerulean."
+                            repeat task.wait()
+                                local health = bosshum.Health
+                                Status.TextColor3 = Color3.fromRGB(255, 80, 80)
+                                Status.Text = "Waiting for Cerulean Death."
+                                Task.TextColor3 = Color3.fromRGB(255, 80, 80)
+                                Task.Text = "Killing Cerulean | HP : " .. health
+                                root.CFrame = CFrame.new(88.7765732, 300.087585, -57339.7578)
+                            until not Cerulean or Model:FindFirstChild("CommanderCeruleanStaff")
+                            Task.TextColor3 = Color3.fromRGB(255, 255, 255)
+                            Task.Text = "-"
+                            Status.TextColor3 = Color3.fromRGB(0, 255, 0)
+                            Status.Text = "Cerulean Dead"
+                            Status.TextColor3 = Color3.fromRGB(255, 80, 80)
+                        elseif Model:FindFirstChild("CommanderCeruleanStaff") then
+                            Status.Text = "Checking Crimson."
+                            root.CFrame = CFrame.new(73.2171783, 187.053329, -55328.3711)
+                            task.wait(3)
+                            repeat task.wait() until Model:FindFirstChild("CommanderCrimsonSword") or Model:FindFirstChild("CommanderCrimson")
+                            local Crimson = Model:FindFirstChild("CommanderCrimson")
+                            local bosshum = Crimson and Crimson:FindFirstChild('Humanoid')
+                            if Crimson and bosshum then
+                                Status.TextColor3 = Color3.fromRGB(0, 255, 0)
+                                Status.Text = "Found Crimson."
+                                repeat task.wait()
+                                    local health = bosshum.Health
+                                    Status.TextColor3 = Color3.fromRGB(255, 80, 80)
+                                    Status.Text = "Waiting for Crimson Death."
+                                    Task.TextColor3 = Color3.fromRGB(255, 80, 80)
+                                    Task.Text = "Killing Crimson | HP : " .. health
+                                    root.CFrame = CFrame.new(73.2171783, 187.053329, -55328.3711)
+                                until not Crimson or Model:FindFirstChild("CommanderCrimsonSword")
+                                Task.TextColor3 = Color3.fromRGB(255, 255, 255)
+                                Task.Text = "-"
+                                Status.TextColor3 = Color3.fromRGB(0, 255, 0)
+                                Status.Text = "Crimson Dead"
+                                Status.TextColor3 = Color3.fromRGB(255, 80, 80)
+                                repeat task.wait() until Model:FindFirstChild("CommanderCrimsonSword")
+                                Status.Text = "Checking End Portal"
+                                root.CFrame = CFrame.new(2.81599808, 130.958237, -53391.5117)
+                                task.wait(3)
+                                local Arenaportal = Island:FindFirstChild("ArenaPortal")
+                                if Arenaportal then
+                                    firetouchinterest(root, Arenaportal, 0)
+                                    task.wait(2)
+                                    repeat task.wait() until Model:FindFirstChild("VoidReaper")
+                                    local VoidReaper = Model:FindFirstChild("VoidReaper")
+                                    if VoidReaper then
+                                        local voidhum = VoidReaper:FindFirstChild("Humanoid")
+                                        if voidhum then
+                                            local arena = workspace.Island:FindFirstChild("VoidReaperArenaPart")
+                                            if arena then
+                                                local radius = 150
+                                                local angle = 0
+                                                Status.Text = "Killing Void Reaper"
+                                                noclip()
+                                                repeat
+                                                    task.wait(0.7)
+
+                                                    VoidReaper = Model:FindFirstChild("VoidReaper")
+                                                    if not VoidReaper then
+                                                        break
+                                                    end
+
+                                                    voidhum = VoidReaper:FindFirstChild("Humanoid")
+                                                    if not voidhum or voidhum.Health <= 0 then
+                                                        break
+                                                    end
+
+                                                    local center = arena.Position
+
+                                                    local x = center.X + math.cos(math.rad(angle)) * radius
+                                                    local z = center.Z + math.sin(math.rad(angle)) * radius
+
+                                                    local pos = Vector3.new(x, 1024.93018, z)
+                                                    local look = Vector3.new(center.X, 1024.93018, center.Z)
+
+                                                    root.CFrame = CFrame.new(pos, look)
+
+                                                    angle = (angle + 20) % 360
+
+                                                until false
+                                                clip()
+                                                _G.DoneVoid = true
+                                                if root:FindFirstChild("Lock") then
+                                                    root.Lock:Destroy()
+                                                end
+                                                if Autowin.Mode["Void"] and _G.DoneVoid then
+                                                    task.wait(2)
+                                                    if CoreGui:FindFirstChild("StatusUI") then
+                                                        CoreGui.StatusUI:Destroy()
+                                                    end
+                                                    local blur = Lighting:FindFirstChild("StatusUIBlur")
+                                                    if blur then
+                                                        blur:Destroy()
+                                                    end
+                                                end
+                                                return
+                                            end
+                                        end
+                                    end
+                                elseif Model:FindFirstChild("VoidReaper") then 
+                                    local VoidReaper = Model:FindFirstChild("VoidReaper")
+                                    if VoidReaper then
+                                        local voidhum = VoidReaper:FindFirstChild("Humanoid")
+                                        if voidhum then
+                                            local arena = workspace.Island:FindFirstChild("VoidReaperArenaPart")
+                                            if arena then
+                                                local radius = 20
+                                                local angle = 0
+
+                                                repeat
+                                                    task.wait(0.7)
+
+                                                    VoidReaper = Model:FindFirstChild("VoidReaper")
+                                                    if not VoidReaper then
+                                                        break
+                                                    end
+
+                                                    voidhum = VoidReaper:FindFirstChild("Humanoid")
+
+                                                    Task.Text = "Killing Void Reaper | HP : " .. voidhum.Health
+                                                    if not voidhum or voidhum.Health <= 0 then
+                                                        break
+                                                    end
+
+                                                    local center = arena.Position
+
+                                                    local x = center.X + math.cos(math.rad(angle)) * radius
+                                                    local z = center.Z + math.sin(math.rad(angle)) * radius
+
+                                                    root.CFrame = CFrame.new(
+                                                        x,
+                                                        1024.93018,
+                                                        z,
+                                                        center.X,
+                                                        1024.93018,
+                                                        center.Z
+                                                    )
+
+                                                    angle = (angle + 45) % 360
+
+                                                until false
+                                                _G.DoneVoid = true
+                                                if root:FindFirstChild("Lock") then
+                                                    root.Lock:Destroy()
+                                                end
+                                                if Autowin.Mode["Void"] and _G.DoneVoid then
+                                                    task.wait(2)
+                                                    if CoreGui:FindFirstChild("StatusUI") then
+                                                        CoreGui.StatusUI:Destroy()
+                                                    end
+                                                    local blur = Lighting:FindFirstChild("StatusUIBlur")
+                                                    if blur then
+                                                        blur:Destroy()
+                                                    end
+                                                end
+                                                task.wait(5)
+                                                firetouchinterest(root,Island:FindFirstChild("EndPortal"),0)
+                                                return
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+
+
+
+
